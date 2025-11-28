@@ -78,9 +78,9 @@
     <script>
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
 
-
-        const appUrl = `weshapp://verify_email`;
+        const appUrl = `weshapp://verify_email?email=${encodeURIComponent(email)}`;
 
         // Try to open the app
         window.location.href = appUrl;
