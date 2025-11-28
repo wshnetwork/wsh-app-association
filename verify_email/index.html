@@ -78,25 +78,18 @@
     <script>
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        const oobCode = urlParams.get('oobCode');
-        const apiKey = urlParams.get('apiKey');
 
-        // Redirect to app with all parameters
-        if (mode && oobCode) {
-            const appUrl = `weshapp://verify_email?mode=${mode}&oobCode=${oobCode}&apiKey=${apiKey || ''}`;
 
-            // Try to open the app
-            window.location.href = appUrl;
+        const appUrl = `weshapp://verify_email`;
 
-            // Fallback message after 3 seconds if app doesn't open
-            setTimeout(() => {
-                document.getElementById('message').innerHTML =
-                    'Could not open app automatically.<br><a href="' + appUrl + '" class="button">Open WSH App</a>';
-            }, 3000);
-        } else {
-            document.getElementById('message').textContent = 'Invalid verification link';
-        }
+        // Try to open the app
+        window.location.href = appUrl;
+
+        // Fallback message after 3 seconds if app doesn't open
+        setTimeout(() => {
+            document.getElementById('message').innerHTML =
+                'Could not open app automatically.<br><a href="' + appUrl + '" class="button">Open WSH App</a>';
+        }, 3000);
     </script>
 </body>
 
