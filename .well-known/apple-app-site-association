@@ -3,10 +3,14 @@
     "apps": [],
     "details": [
       {
-        "appID": "TEAMID.com.yourcompany.wshnetwork",
+        "appID": "XNJF79J23T.com.wsh.weshapp",
         "paths": [
-          "/verify-email",
-          "/__/auth/action"
+          "/verify_email",
+          "/__/auth/action",
+          "/reset_password",
+          "/user/*",
+          "/home",
+          "main/tabs/notifications"
         ]
       }
     ]
