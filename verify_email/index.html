@@ -13,19 +13,20 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            background: #000;
+            background: black;
         }
 
         .container {
-            background: 'none';
+            background: black;
             padding: 40px;
             border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             text-align: center;
             max-width: 400px;
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
+            border: 3px solid #333;
             border-top: 3px solid #667eea;
             border-radius: 50%;
             width: 40px;
@@ -45,12 +46,12 @@
         }
 
         h1 {
-            color: #FFF;
+            color: #EEE;
             margin-bottom: 20px;
         }
 
         p {
-            color: #DDD;
+            color: #AAA;
             line-height: 1.6;
         }
 
@@ -58,35 +59,87 @@
             display: inline-block;
             margin-top: 20px;
             padding: 12px 30px;
-            background: #FFF;
+            background: white;
             color: black;
             text-decoration: none;
             border-radius: 25px;
             font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .success {
+            color: #27ae60;
+            font-size: 60px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 60px;
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <img src="/assets/wsh-white.png" alt="WSH Logo" width="100" style="display: block; margin: 0 auto 20px auto;">
-        <h1>Email Verified!</h1>
-        <div id="spinner" class="spinner"></div>
-        <p id="message">Redirecting to app...</p>
+        <h1 id="title">Email Verification</h1>
+        <div class="spinner" id="spinner"></div>
+        <p id="message">Verifying your email...</p>
+        <div id="action"></div>
     </div>
 
-    <script>
-        const appUrl = 'weshapp://';
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, applyActionCode } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        // Try to open the app
-        window.location.href = appUrl;
+        const firebaseConfig = {
+            apiKey: "AIzaSyA86nJPGQOOTM0U-eHuhqnTi0O9EpdmX0A",
+            authDomain: "wesh-3ae30.firebaseapp.com",
+            projectId: "wesh-3ae30",
+        };
 
-        // Fallback message after 3 seconds if app doesn't open
-        setTimeout(() => {
-            document.getElementById('spinner').style.display = 'none';
-            document.getElementById('message').innerHTML =
-                'You may now sign in<br><a href="' + appUrl + '" class="button">Open WSH</a>';
-        }, 3000);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const oobCode = urlParams.get('oobCode');
+
+        const spinner = document.getElementById('spinner');
+        const title = document.getElementById('title');
+        const message = document.getElementById('message');
+        const action = document.getElementById('action');
+
+        if (mode === 'verifyEmail' && oobCode) {
+            applyActionCode(auth, oobCode)
+                .then(() => {
+                    // Success
+                    spinner.style.display = 'none';
+                    title.innerHTML = '<span class="success">✓</span>';
+                    message.textContent = 'Email verified successfully!';
+
+                    // Redirect to app after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'weshapp://';
+                    }, 2000);
+
+                    // Show manual button as fallback
+                    setTimeout(() => {
+                        action.innerHTML = '<a href="weshapp://" class="button">Open App</a>';
+                    }, 3000);
+                })
+                .catch((error) => {
+                    // Error
+                    spinner.style.display = 'none';
+                    title.innerHTML = '<span class="error">✗</span>';
+                    message.textContent = 'Verification failed: ' + error.message;
+                    action.innerHTML = '<a href="weshapp://" class="button">Return to App</a>';
+                });
+        } else {
+            spinner.style.display = 'none';
+            message.textContent = 'Invalid verification link';
+            action.innerHTML = '<a href="weshapp://" class="button">Return to App</a>';
+        }
     </script>
 </body>
 
