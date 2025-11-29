@@ -121,12 +121,12 @@
 
                     // Redirect to app after 2 seconds
                     setTimeout(() => {
-                        window.location.href = 'weshapp://verification_success';
+                        window.location.href = 'weshapp://?verification_success&schoolId=' + schoolId;
                     }, 2000);
 
                     // Show manual button as fallback
                     setTimeout(() => {
-                        action.innerHTML = '<a href="weshapp://?verification_success&schoolId=' + schoolId + '" class="button">Open App</a>';
+                        action.innerHTML = '<a href="weshapp://auth/main?verification_success&schoolId=' + schoolId + '" class="button">Open App</a>';
                     }, 3000);
                 })
                 .catch((error) => {
@@ -134,7 +134,7 @@
                     spinner.style.display = 'none';
                     title.innerHTML = '<span class="error">✗</span>';
                     message.textContent = 'Verification failed: ' + error.message;
-                    action.innerHTML = '<a href="weshapp://?verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
+                    action.innerHTML = '<a href="weshapp://auth/main?verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
                 });
         } else {
             spinner.style.display = 'none';
