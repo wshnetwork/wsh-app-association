@@ -127,7 +127,7 @@
 
                     // Show manual button as fallback
                     setTimeout(() => {
-                        action.innerHTML = '<a href="weshapp://(auth)/main?action=verification_success&schoolId=' + schoolId + '" class="button">Open App</a>';
+                        action.innerHTML = '<a href="weshapp://main?action=verification_success&schoolId=' + schoolId + '" class="button">Open App</a>';
                     }, 3000);
                 })
                 .catch((error) => {
@@ -135,7 +135,7 @@
                     spinner.style.display = 'none';
                     title.innerHTML = '<span class="error">✗</span>';
                     message.textContent = 'Verification failed: ' + error.message;
-                    action.innerHTML = '<a href="weshapp://(auth)/main?action=verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
+                    action.innerHTML = '<a href="weshapp://main?action=verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
                 });
         } else {
             spinner.style.display = 'none';
