@@ -107,6 +107,18 @@
         const oobCode = urlParams.get('oobCode');
         const schoolId = urlParams.get('schoolId');
 
+        if (!schoolId) {
+                const continueUrl = urlParams.get('continueUrl');
+                if (continueUrl) {
+                    try {
+                        const continueParams = new URLSearchParams(new URL(continueUrl).search);
+                        schoolId = continueParams.get('schoolId');
+                    } catch (e) {
+                        console.error('Error parsing continueUrl:', e);
+                    }
+                }
+            }
+
         const spinner = document.getElementById('spinner');
         const title = document.getElementById('title');
         const message = document.getElementById('message');
