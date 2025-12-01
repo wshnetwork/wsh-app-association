@@ -146,7 +146,7 @@
                     // Error
                     spinner.style.display = 'none';
                     title.innerHTML = '<span class="error">✗</span>';
-                    message.textContent = 'Verification failed: ' + error.message;
+                    message.textContent = 'Verification failed: ' + error.message + (schoolId ? ' School ID: ' + schoolId : '');
                     action.innerHTML = '<a href="weshapp://main?action=verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
                 });
         } else {
