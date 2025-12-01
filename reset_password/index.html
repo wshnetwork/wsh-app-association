@@ -83,9 +83,7 @@
 <body>
     <div class="container">
         <img src="/assets/wsh-white.png" alt="WSH Logo" style="width: 100px; margin-bottom: 20px;">
-        <h1 id="title">Email Verification</h1>
-        <div class="spinner" id="spinner"></div>
-        <p id="message">Verifying your email...</p>
+        <h1 id="title">Password Reset</h1>
         <div id="action"></div>
     </div>
 
@@ -102,46 +100,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const mode = urlParams.get('mode');
-        const oobCode = urlParams.get('oobCode');
-        const schoolId = urlParams.get('schoolId');
 
-        const spinner = document.getElementById('spinner');
-        const title = document.getElementById('title');
-        const message = document.getElementById('message');
-        const action = document.getElementById('action');
-
-        if (mode === 'verifyEmail' && oobCode) {
-            applyActionCode(auth, oobCode)
-                .then(() => {
-                    // Success
-                    spinner.style.display = 'none';
-                    title.innerHTML = '<span class="success">✓</span>';
-                    message.textContent = 'Email verified successfully!';
-
-                    // Redirect to app after 2 seconds
-                    setTimeout(() => {
-                        window.location.href = 'weshapp://main?action=verification_success&schoolId=' + schoolId;
-                    }, 2000);
-
-                    // Show manual button as fallback
-                    setTimeout(() => {
-                        action.innerHTML = '<a href="weshapp://main?action=verification_success&schoolId=' + schoolId + '" class="button">Open App</a>';
-                    }, 3000);
-                })
-                .catch((error) => {
-                    // Error
-                    spinner.style.display = 'none';
-                    title.innerHTML = '<span class="error">✗</span>';
-                    message.textContent = 'Verification failed: ' + error.message;
-                    action.innerHTML = '<a href="weshapp://main?action=verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
-                });
-        } else {
-            spinner.style.display = 'none';
-            message.textContent = 'Password reset!';
             action.innerHTML = '<a href="weshapp://" class="button">Return to WSH</a>';
-        }
+        
     </script>
 </body>
 

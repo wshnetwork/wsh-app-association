@@ -4,6 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <title>WSH Network</title>
+    <script>
+        (function() {
+            const params = new URLSearchParams(window.location.search);
+            const mode = params.get('mode');
+            if (mode === 'resetPassword') {
+                // preserve query string when redirecting
+                window.location.replace('reset_password/index.html' + window.location.search);
+            } else if (mode === 'verifyEmail') {
+                window.location.replace('verify_email/index.html' + window.location.search);
+            }
+        })();
+    </script>
 </head>
 
 <body>
