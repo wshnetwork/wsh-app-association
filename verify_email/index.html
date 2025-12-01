@@ -105,10 +105,10 @@
         const urlParams = new URLSearchParams(window.location.search);
         const mode = urlParams.get('mode');
         const oobCode = urlParams.get('oobCode');
-        const schoolId = urlParams.get('schoolId');
+        let schoolId = urlParams.get('schoolId');
 
         if (!schoolId) {
-                const continueUrl = urlParams.get('continueUrl');
+                const continueUrl = new URLSearchParams(new URL(urlParams.get('continueUrl')).search).get('link');
                 if (continueUrl) {
                     try {
                         const continueParams = new URLSearchParams(new URL(continueUrl).search);
@@ -146,7 +146,7 @@
                     // Error
                     spinner.style.display = 'none';
                     title.innerHTML = '<span class="error">✗</span>';
-                    message.textContent = 'Verification failed: ' + error.message + (schoolId ? ' School ID: ' + schoolId : '');
+                    message.textContent = 'Verification failed: ' + error.message;
                     action.innerHTML = '<a href="weshapp://main?action=verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
                 });
         } else {
