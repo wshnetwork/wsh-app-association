@@ -109,7 +109,40 @@
         const title = document.getElementById('title');
         const message = document.getElementById('message');
         const action = document.getElementById('action');
-        const schoolId = new URLSearchParams(new URL(urlParams.get('continueUrl')).search).get('schoolId').toString();
+        let schoolId = '';
+            try {
+                const continueUrl = urlParams.get('continueUrl');
+                console.log('Continue URL:', continueUrl);
+
+                if (continueUrl) {
+                    // Parse the continueUrl
+                    const continueUrlObj = new URL(continueUrl);
+
+                    // First try to get schoolId directly from continueUrl
+                    let extractedSchoolId = new URLSearchParams(continueUrlObj.search).get('schoolId');
+
+                    // If not found, it might be nested in the 'link' parameter
+                    if (!extractedSchoolId) {
+                        const nestedLink = new URLSearchParams(continueUrlObj.search).get('link');
+                        console.log('Nested link:', nestedLink);
+
+                        if (nestedLink) {
+                            try {
+                                const nestedLinkObj = new URL(nestedLink);
+                                extractedSchoolId = new URLSearchParams(nestedLinkObj.search).get('schoolId');
+                                console.log('SchoolId from nested link:', extractedSchoolId);
+                            } catch (e) {
+                                console.error('Error parsing nested link:', e);
+                            }
+                        }
+                    }
+
+                    schoolId = extractedSchoolId || '';
+                    console.log('Final schoolId:', schoolId);
+                }
+            } catch (error) {
+                console.error('Error parsing continueUrl:', error);
+            }
 
         if (mode === 'verifyEmail' && oobCode) {
             applyActionCode(auth, oobCode)
