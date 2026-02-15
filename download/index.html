@@ -17,7 +17,9 @@
         .container {
             max-width: 500px;
             width: 100%;
-            padding: 40px 20px;
+            padding: 20px 20px;
+            border-radius: 25px;
+            z-index: 1;
         }
 
         .download-header {
@@ -118,6 +120,36 @@
             font-weight: 600;
             margin-top: 15px;
         }
+
+        @keyframes rotate {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .animated-background {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.5;
+            z-index: 0;
+            pointer-events: none;
+            animation: rotate 60s linear infinite;
+
+            /* Smooth rendering */
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: smooth;
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+            will-change: transform;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
     </style>
 </head>
 
@@ -131,8 +163,7 @@
 
         <div id="content">
             <div class="download-buttons">
-                <a href="https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://apps.apple.com/ca/app/wsh/id6755229275&ved=2ahUKEwi-wOrAqNySAxUL0PACHYiRIAcQFnoECAwQAQ&usg=AOvVaw3Vw4h_Vl2Y0A5B0Tg1EpR8"
-                    class="download-btn" id="appStoreBtn">
+                <a href="https://apps.apple.com/ca/app/wsh/id6755229275" class="download-btn" id="appStoreBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" height="52" width="52"
                         viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
                         <path
@@ -166,7 +197,27 @@
     </div>
 
     <script>
-        // Device detection
+        (function createAnimatedBackground() {
+            const bgLogo = document.createElement('img');
+            bgLogo.src = '/assets/img/wsh-white.svg';
+            bgLogo.className = 'animated-background';
+
+            // Calculate height: 2.5x viewport height
+            const logoHeight = window.innerHeight * 2.5;
+            bgLogo.style.height = logoHeight + 'px';
+            bgLogo.style.width = 'auto';
+
+            // Insert at the beginning of body
+            document.body.insertBefore(bgLogo, document.body.firstChild);
+
+            // Update size on window resize
+            window.addEventListener('resize', function () {
+                const newLogoHeight = window.innerHeight * 2.5;
+                bgLogo.style.height = newLogoHeight + 'px';
+            });
+        })();
+
+        // Device detection and auto-redirect
         function detectDevice() {
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
 
@@ -183,20 +234,24 @@
             return 'other';
         }
 
-        // Get app store links from data attributes or constants
-        const APP_STORE_LINK = "https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://apps.apple.com/ca/app/wsh/id6755229275&ved=2ahUKEwi-wOrAqNySAxUL0PACHYiRIAcQFnoECAwQAQ&usg=AOvVaw3Vw4h_Vl2Y0A5B0Tg1EpR8";
+        // App store links
+        const APP_STORE_LINK = "https://apps.apple.com/ca/app/wsh/id6755229275";
         const PLAY_STORE_LINK = "https://play.google.com/store/apps/details?id=com.wsh.weshapp";
 
         const deviceType = detectDevice();
 
-        if (deviceType === 'ios') {
-            // Redirect to App Store
-            window.location.href = APP_STORE_LINK;
-        } else if (deviceType === 'android') {
-            // Redirect to Play Store
-            window.location.href = PLAY_STORE_LINK;
+        // Auto-redirect on mobile, but page stays visible as fallback
+        if (deviceType === 'ios' || deviceType === 'android') {
+            // Wait a moment for page to render, then redirect
+            setTimeout(() => {
+                if (deviceType === 'ios') {
+                    window.location.href = APP_STORE_LINK;
+                } else if (deviceType === 'android') {
+                    window.location.href = PLAY_STORE_LINK;
+                }
+            }, 500); // 500ms delay so page is visible first
         }
-        // For 'other', the page with buttons will display
+        // Desktop users just see the page
     </script>
 </body>
 
