@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>WSH Network - Email Verification</title>
+    <title>Email Verification</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/assets/main.css">
+    <link rel="icon" type="image/png" href="/assets/img/wsh-white.png">
     <style>
         body {
             display: flex;
@@ -20,8 +21,10 @@
     <div class="container">
         <img src="/assets/img/wsh-white.png" alt="WSH Logo" style="width: 100px; margin-bottom: 20px;">
         <h1 id="title">Email Verification</h1>
+        <button id="verifyBtn" class="button">Verify Email</button>
         <div class="spinner" id="spinner"></div>
-        <p id="message">Verifying your email...</p>
+        <p id="message">Click the button to verify your email.</p>
+
         <div id="action"></div>
     </div>
 
@@ -45,71 +48,80 @@
         const title = document.getElementById('title');
         const message = document.getElementById('message');
         const action = document.getElementById('action');
+        const verifyBtn = document.getElementById('verifyBtn');
         let schoolId = '';
-            try {
-                const continueUrl = urlParams.get('continueUrl');
-                console.log('Continue URL:', continueUrl);
+        try {
+            const continueUrl = urlParams.get('continueUrl');
+            console.log('Continue URL:', continueUrl);
 
-                if (continueUrl) {
-                    // Parse the continueUrl
-                    const continueUrlObj = new URL(continueUrl);
+            if (continueUrl) {
+                // Parse the continueUrl
+                const continueUrlObj = new URL(continueUrl);
 
-                    // First try to get schoolId directly from continueUrl
-                    let extractedSchoolId = new URLSearchParams(continueUrlObj.search).get('schoolId');
+                // First try to get schoolId directly from continueUrl
+                let extractedSchoolId = new URLSearchParams(continueUrlObj.search).get('schoolId');
 
-                    // If not found, it might be nested in the 'link' parameter
-                    if (!extractedSchoolId) {
-                        const nestedLink = new URLSearchParams(continueUrlObj.search).get('link');
-                        console.log('Nested link:', nestedLink);
+                // If not found, it might be nested in the 'link' parameter
+                if (!extractedSchoolId) {
+                    const nestedLink = new URLSearchParams(continueUrlObj.search).get('link');
+                    console.log('Nested link:', nestedLink);
 
-                        if (nestedLink) {
-                            try {
-                                const nestedLinkObj = new URL(nestedLink);
-                                extractedSchoolId = new URLSearchParams(nestedLinkObj.search).get('schoolId');
-                                console.log('SchoolId from nested link:', extractedSchoolId);
-                            } catch (e) {
-                                console.error('Error parsing nested link:', e);
-                            }
+                    if (nestedLink) {
+                        try {
+                            const nestedLinkObj = new URL(nestedLink);
+                            extractedSchoolId = new URLSearchParams(nestedLinkObj.search).get('schoolId');
+                            console.log('SchoolId from nested link:', extractedSchoolId);
+                        } catch (e) {
+                            console.error('Error parsing nested link:', e);
                         }
                     }
-
-                    schoolId = extractedSchoolId || '';
-                    console.log('Final schoolId:', schoolId);
                 }
-            } catch (error) {
-                console.error('Error parsing continueUrl:', error);
+
+                schoolId = extractedSchoolId || '';
+                console.log('Final schoolId:', schoolId);
+            }
+        } catch (error) {
+            console.error('Error parsing continueUrl:', error);
+        }
+
+        spinner.style.display = 'none';
+
+        verifyBtn.addEventListener('click', () => {
+            action.innerHTML = '';
+            verifyBtn.style.display = 'none';
+            
+            if (mode !== 'verifyEmail' || !oobCode) {
+                spinner.style.display = 'none';
+                message.textContent = 'Invalid verification link';
+                action.innerHTML = '<a href="weshapp://" class="button">Return to App</a>';
+                return;
             }
 
-        if (mode === 'verifyEmail' && oobCode) {
+            spinner.style.display = 'block';
+            message.textContent = 'Verifying your email...';
+
             applyActionCode(auth, oobCode)
                 .then(() => {
-                    // Success
                     spinner.style.display = 'none';
                     title.innerHTML = '<span class="success">✓</span>';
                     message.textContent = 'Email verified successfully!';
 
-                    // Redirect to app after 2 seconds
                     setTimeout(() => {
                         window.location.href = 'weshapp://main?action=verification_success&schoolId=' + schoolId;
                     }, 2000);
 
-                    // Show manual button as fallback
                     setTimeout(() => {
                         action.innerHTML = '<a href="weshapp://main?action=verification_success&schoolId=' + schoolId + '" class="button">Open App</a>';
                     }, 3000);
                 })
                 .catch((error) => {
-                    // Error
                     spinner.style.display = 'none';
+                    verifyBtn.style.display = 'none';
                     title.innerHTML = '<span class="error">✗</span>';
                     message.textContent = 'Verification failed: ' + error.message;
                     action.innerHTML = '<a href="weshapp://main?action=verification_failed&schoolId=' + schoolId + '" class="button">Return to App</a>';
                 });
-        } else {
-            spinner.style.display = 'none';
-            message.textContent = 'Invalid verification link';
-            action.innerHTML = '<a href="weshapp://" class="button">Return to App</a>';
-        }
+        });
     </script>
 </body>
 

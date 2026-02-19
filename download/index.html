@@ -3,16 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>WSH Network - Download</title>
+    <title>Download WSH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/assets/main.css">
+    <link rel="icon" type="image/png" href="/assets/img/wsh-white.png">
     <style>
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 8px;
+            padding: 88px 8px 8px;
             -webkit-user-select: none;
             /* Safari */
             -moz-user-select: none;
@@ -193,7 +194,17 @@
     </style>
 </head>
 
-<body>
+<body class="has-header">
+    <header class="site-header">
+        <a class="header-brand" href="/">
+            <img src="/assets/img/wsh-white.png" alt="WSH Logo">
+            <span>WSH Network</span>
+        </a>
+        <nav class="header-actions">
+            <a class="header-button" href="/download/">Download</a>
+            <a class="header-button primary" href="/docs/">Docs</a>
+        </nav>
+    </header>
     <div class="container">
         <div class="download-header">
             <img src="/assets/img/wsh-white.png" alt="WSH Logo">

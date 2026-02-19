@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>WSH Network</title>
+    <link rel="icon" type="image/png" href="/assets/img/wsh-white.png">
     <script>
         (function() {
             const params = new URLSearchParams(window.location.search);
@@ -14,6 +15,8 @@
             } else if (mode === 'verifyEmail') {
                 // preserve query string when redirecting
                 window.location.replace('verify_email/index.html' + window.location.search);
+            } else {
+                window.location.replace('about/index.html');
             }
         })();
     </script>
