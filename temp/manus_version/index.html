@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WSH - The First Student Social Network</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header id="site-header">
+    <div class="container header-inner">
+      <div class="header-brand">
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/IVnjpjEHqYhpInNH.jpeg" alt="WSH" class="header-logo" />
+        <span class="header-name">WSH</span>
+        <button id="lang-toggle" class="lang-btn" aria-label="Switch language">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span id="lang-label">FR</span>
+        </button>
+      </div>
+
+      <nav class="desktop-nav" id="desktop-nav">
+        <a href="#problem" data-i18n="theProblem">The Problem</a>
+        <a href="#solution" data-i18n="ourSolution">Our Solution</a>
+        <a href="#identity" data-i18n="identity">Identity</a>
+        <a href="#categories" data-i18n="categories">Categories</a>
+        <a href="#value" data-i18n="value">Value</a>
+        <a href="https://app.wshnetwork.com/docs/" target="_blank" rel="noopener noreferrer" data-i18n="legal">Legal</a>
+        <a href="https://app.wshnetwork.com/download" target="_blank" rel="noopener noreferrer" class="download-link">
+          <span data-i18n="download">Download</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+        </a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <svg id="icon-menu" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+      <nav>
+        <a href="#problem" data-i18n="theProblem">The Problem</a>
+        <a href="#solution" data-i18n="ourSolution">Our Solution</a>
+        <a href="#identity" data-i18n="identity">Identity</a>
+        <a href="#categories" data-i18n="categories">Categories</a>
+        <a href="#value" data-i18n="value">Value</a>
+        <a href="https://app.wshnetwork.com/docs/" target="_blank" rel="noopener noreferrer" data-i18n="legal">Legal</a>
+        <a href="https://app.wshnetwork.com/download" target="_blank" rel="noopener noreferrer" data-i18n="download">Download</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero section-white">
+    <div class="container text-center">
+      <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/IVnjpjEHqYhpInNH.jpeg" alt="WSH Logo" class="hero-logo" />
+      <h1 class="hero-title">WSH</h1>
+      <p class="hero-subtitle" data-i18n="heroSubtitle">The First Student Social Network</p>
+      <p class="hero-tagline" data-i18n="heroTagline">Your uni, your thoughts, your voice. Unfiltered.</p>
+      <a href="#problem" class="btn-primary" data-i18n="learnMore">Learn More</a>
+    </div>
+  </section>
+
+  <!-- ===== THE PROBLEM ===== -->
+  <section id="problem" class="section section-black">
+    <div class="container grid-2">
+      <div>
+        <h2 data-i18n="problemTitle">The Problem</h2>
+        <h3 class="section-sub" data-i18n="problemSubtitle">No Way to Connect</h3>
+        <p data-i18n="problemText1">Currently, there is no easy or centralized way for students to reach their fellow students within a university. Students rely on scattered, unofficial channels like WhatsApp groups, Instagram stories, or mass emails.</p>
+        <p data-i18n="problemText2">These channels are fragmented, hard to navigate, and limited to small circles.</p>
+      </div>
+      <div class="img-center">
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/gjbVjoduosOWOthM.png" alt="WSH Welcome Screen" class="phone-img" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== OUR SOLUTION ===== -->
+  <section id="solution" class="section section-white">
+    <div class="container">
+      <div class="text-center mb-lg">
+        <h2 data-i18n="solutionTitle">Our Solution</h2>
+        <h3 class="section-sub" data-i18n="solutionSubtitle">WSH - Where Stuff Happens</h3>
+      </div>
+      <p class="lead text-center mb-lg" data-i18n="solutionText">WSH is a private, school-centered social media platform designed exclusively for university students. It offers a secure environment where students can engage in discussions, share content, and connect with peers within their university community.</p>
+      <div class="feature-grid mb-lg">
+        <div class="feature-card" data-i18n="solutionFeature1">Real-time student connections</div>
+        <div class="feature-card" data-i18n="solutionFeature2">University-specific networks</div>
+        <div class="feature-card" data-i18n="solutionFeature3">Safe and moderated environment</div>
+      </div>
+      <div class="screenshot-grid">
+        <img src="https://wshnetwork.com/manus-storage/Inapp_b789a2c9.png" alt="WSH App Feed" class="screenshot-img" onerror="this.src='https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/wzfwSKxqzdADZfyq.png'" />
+        <img src="https://wshnetwork.com/manus-storage/Inapp2_aa96b6a7.png" alt="WSH App Feed 2" class="screenshot-img" onerror="this.src='https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/YhDOooprYbcGhkst.png'" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== IDENTITY ===== -->
+  <section id="identity" class="section section-black">
+    <div class="container grid-2">
+      <div class="img-center order-2">
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/UKdLkEgjWbnTQcCK.png" alt="WSH Identity Options" class="phone-img" />
+      </div>
+      <div class="order-1">
+        <h2 data-i18n="identityTitle">You Choose How You Show Up</h2>
+        <div class="identity-options">
+          <div class="identity-item border-red">
+            <h3 data-i18n="identityHandle">Handle</h3>
+            <p data-i18n="identityHandleDesc">Your unique username. Build your reputation over time.</p>
+          </div>
+          <div class="identity-item border-purple">
+            <h3 data-i18n="identityAlias">Alias</h3>
+            <p data-i18n="identityAliasDesc">A reusable temporary name for contextual posting.</p>
+          </div>
+          <div class="identity-item border-gray">
+            <h3 data-i18n="identityAnonymous">Anonymous</h3>
+            <p data-i18n="identityAnonymousDesc">Post without your name. Pure freedom of expression, taking away social pressure.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORIES ===== -->
+  <section id="categories" class="section section-white">
+    <div class="container">
+      <div class="text-center mb-lg">
+        <h2 data-i18n="categoriesTitle">Post Categories</h2>
+        <h3 class="section-sub" data-i18n="categoriesSubtitle">Organized Content</h3>
+        <p class="lead" data-i18n="categoriesText">Posts can be organized into categories by users, and users can browse these specific categories to find relevant content.</p>
+      </div>
+      <div class="categories-grid">
+        <div class="cat-card"><span class="cat-icon">📊</span><span class="cat-label blue" data-i18n="catPoll">Poll</span></div>
+        <div class="cat-card"><span class="cat-icon">❓</span><span class="cat-label green" data-i18n="catQuestion">Question</span></div>
+        <div class="cat-card"><span class="cat-icon">🤫</span><span class="cat-label purple" data-i18n="catConfession">Confession</span></div>
+        <div class="cat-card"><span class="cat-icon">💡</span><span class="cat-label orange" data-i18n="catAdvice">Advice</span></div>
+        <div class="cat-card"><span class="cat-icon">💘</span><span class="cat-label pink" data-i18n="catCrush">Crush</span></div>
+        <div class="cat-card"><span class="cat-icon">😂</span><span class="cat-label yellow" data-i18n="catMeme">Meme</span></div>
+        <div class="cat-card"><span class="cat-icon">🎉</span><span class="cat-label red" data-i18n="catEvent">Event</span></div>
+        <div class="cat-card"><span class="cat-icon">📢</span><span class="cat-label indigo" data-i18n="catAnnouncement">Announcement</span></div>
+        <div class="cat-card"><span class="cat-icon">⚖️</span><span class="cat-label teal" data-i18n="catDebate">Debate</span></div>
+        <div class="cat-card"><span class="cat-icon">🔧</span><span class="cat-label cyan" data-i18n="catLifeHack">Life Hack</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MODERATION ===== -->
+  <section id="moderation" class="section section-black">
+    <div class="container">
+      <div class="text-center mb-lg">
+        <h2 data-i18n="moderationTitle">Moderation System</h2>
+        <h3 class="section-sub" data-i18n="moderationSubtitle">Safety First</h3>
+        <p class="lead" data-i18n="moderationText">Our moderation approach is built on two complementary layers: AI-powered moderation as the first line of defense, and Student Moderators for community-driven oversight.</p>
+      </div>
+      <div class="mod-grid">
+        <div class="mod-card" data-i18n="moderationFeature1">OpenAI content filtering + WebPurify AI image moderation</div>
+        <div class="mod-card" data-i18n="moderationFeature2">Student moderator community with local context</div>
+        <div class="mod-card" data-i18n="moderationFeature3">Real-time content review</div>
+        <div class="mod-card" data-i18n="moderationFeature4">One-email-per-student security system</div>
+      </div>
+      <p class="mod-note" data-i18n="moderationNote">Each student holds only one school email address. If a user is permanently banned, they cannot rejoin the platform.</p>
+    </div>
+  </section>
+
+  <!-- ===== VALUE ===== -->
+  <section id="value" class="section section-white">
+    <div class="container">
+      <div class="text-center mb-lg">
+        <h2 data-i18n="valueTitle">The Value</h2>
+        <h3 class="section-sub" data-i18n="valueSubtitle">Building Community</h3>
+        <p class="lead" data-i18n="valueText">The core value is providing an online space where students can freely express themselves in a space designed for them, without the pressures of traditional social media.</p>
+      </div>
+      <div class="value-grid">
+        <div class="feature-card" data-i18n="valueFeature1">Connect with peers from your university</div>
+        <div class="feature-card" data-i18n="valueFeature2">Stay updated with school news and events</div>
+        <div class="feature-card" data-i18n="valueFeature3">Reach students across all years and campuses</div>
+        <div class="feature-card" data-i18n="valueFeature4">Foster authentic community engagement</div>
+        <div class="feature-card" data-i18n="valueFeature5">Exchange ideas and academic help</div>
+        <div class="feature-card" data-i18n="valueFeature6">Share social experiences without pressure</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PLATFORM INDEPENDENCE ===== -->
+  <section id="independence" class="section section-black">
+    <div class="container text-center">
+      <h2 data-i18n="independenceTitle">Platform Independence</h2>
+      <h3 class="section-sub" data-i18n="independenceSubtitle">Not Affiliated with Schools</h3>
+      <p class="lead" data-i18n="independenceText">WSH is NOT affiliated with any school and operates as its own platform, just like any other social media. The platform is still in its early days, and students are lucky to witness it early on and have a chance to make it great.</p>
+      <p class="lead mt-md" data-i18n="independenceText2">We expect feedback from users early on to make the app better through new features and improvements.</p>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/xlismjwPrBPknXlJ.jpeg" alt="WSH Logo" class="footer-logo" />
+      <p class="footer-tagline" data-i18n="footerTagline">WSH - Where Stuff Happens</p>
+
+      <div class="footer-links">
+        <div>
+          <p class="footer-label" data-i18n="footerContact">Contact</p>
+          <a href="mailto:contact@wshnetwork.com">contact@wshnetwork.com</a>
+        </div>
+        <div>
+          <p class="footer-label" data-i18n="download">Download</p>
+          <a href="https://app.wshnetwork.com/download" target="_blank" rel="noopener noreferrer">app.wshnetwork.com/download</a>
+        </div>
+      </div>
+
+      <div class="footer-social">
+        <p class="footer-label" data-i18n="footerSocial">Follow Us</p>
+        <div class="social-icons">
+          <a href="https://www.instagram.com/wshnetwork?igsh=MWttYnJhNmhmYmJs" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="https://www.linkedin.com/company/wshnetwork/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <p class="footer-copy" data-i18n="footerCopyright">© 2025 WSH Network. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

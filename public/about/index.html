@@ -315,32 +315,142 @@
     }
 
     .categories-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 2rem;
-      max-width: 900px;
-      margin: 0 auto;
+      position: relative;
+      width: min(100%, 860px);
+      height: clamp(360px, 48vw, 470px);
+      margin: 1rem auto 0;
+      overflow: visible;
     }
 
     .category-item {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: clamp(72px, 8vw, 100px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
       text-align: center;
-      padding: 1.5rem;
-      background: rgba(0, 0, 0, 0.02);
-      border-radius: 0.5rem;
+      background: transparent;
+      border: none;
+      box-shadow: none;
       transition: transform 0.2s;
+      --item-scale: 1;
+      transform: rotate(var(--angle)) translate(var(--orbit-radius)) rotate(calc(-1 * var(--angle))) scale(var(--item-scale));
+      transform-origin: center;
     }
 
     .category-item:hover {
-      transform: translateY(-4px);
+      --item-scale: 1.06;
     }
 
     .category-item .icon {
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
+      width: 4.5rem;
+      height: 4.5rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+      position: relative;
+    }
+
+    .category-item .icon::after {
+      content: '';
+      position: absolute;
+      inset: 50% auto auto 50%;
+      width: 1.6rem;
+      height: 1.6rem;
+      transform: translate(-50%, -50%);
+      background-color: var(--icon-color, #111);
+      -webkit-mask: var(--icon-mask) center / contain no-repeat;
+      mask: var(--icon-mask) center / contain no-repeat;
     }
 
     .category-item .name {
       font-weight: 500;
+    }
+
+    .categories-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: clamp(116px, 15vw, 160px);
+      height: clamp(116px, 15vw, 160px);
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.03);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .categories-center strong {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+    }
+
+    .categories-center span {
+      font-size: 0.9rem;
+      color: rgba(0, 0, 0, 0.58);
+    }
+
+    @media (max-width: 1100px) {
+      .category-item {
+        width: clamp(68px, 10vw, 96px);
+      }
+
+      .categories-grid {
+        height: clamp(340px, 54vw, 430px);
+      }
+
+      .categories-center {
+        width: clamp(110px, 15vw, 150px);
+        height: clamp(110px, 15vw, 150px);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .category-item {
+        width: 70px;
+      }
+
+      .categories-grid {
+        height: 390px;
+      }
+
+      .categories-center {
+        width: 108px;
+        height: 108px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .categories-grid {
+        height: 340px;
+      }
+
+      .category-item {
+        width: 62px;
+      }
+
+      .category-item .icon {
+        width: 2.7rem;
+        height: 2.7rem;
+      }
+
+      .category-item .name {
+        font-size: 0.85rem;
+      }
     }
 
     /* Moderation Section */
@@ -636,51 +746,9 @@
       <h2>Post Categories</h2>
       <h3>Organized Content</h3>
       <p style="text-align: center; margin-bottom: 2rem; color: rgba(0, 0, 0, 0.6);">Posts can be organized into categories by users, and users can browse these specific categories to find relevant content.</p>
-      <div class="categories-grid">
-        <div class="category-item">
-          <div class="icon">📊</div>
-          <div class="name">Poll</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">❓</div>
-          <div class="name">Question</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">📅</div>
-          <div class="name">Event</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">📢</div>
-          <div class="name">PSA</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">💜</div>
-          <div class="name">Confession</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">💡</div>
-          <div class="name">Advice</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">💖</div>
-          <div class="name">Crush</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">😂</div>
-          <div class="name">Meme</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">🍀</div>
-          <div class="name">Lifehack</div>
-        </div>
-        <div class="category-item">
-          <div class="icon">🗣️</div>
-          <div class="name">Debate</div>
-        </div>
-      </div>
+      <div class="categories-grid" id="categories-grid"></div>
     </div>
   </section>
-
   <!-- Moderation Section -->
   <section class="moderation">
     <div class="container">
@@ -735,6 +803,38 @@
   </footer>
 
   <script>
+    const categories = [
+      { name: 'Poll', icon: '../assets/img/category-icons/poll.svg', color: '#5C6BC0' },
+      { name: 'Question', icon: '../assets/img/category-icons/question.svg', color: '#42A5F5' },
+      { name: 'Event', icon: '../assets/img/category-icons/calendar-outline.svg', color: '#FFA726' },
+      { name: 'PSA', icon: '../assets/img/category-icons/megaphone-outline.svg', color: '#FF2C2C' },
+      { name: 'Confession', icon: '../assets/img/category-icons/chatbubble-ellipses-outline.svg', color: '#AB47BC' },
+      { name: 'Advice', icon: '../assets/img/category-icons/bulb-outline.svg', color: '#2bae00ff' },
+      { name: 'Crush', icon: '../assets/img/category-icons/heart-outline.svg', color: '#ff6497ff' },
+      { name: 'Meme', icon: '../assets/img/category-icons/happy-outline.svg', color: '#e2c800ff' },
+      { name: 'Lifehack', icon: '../assets/img/category-icons/leaf-outline.svg', color: '#9CCC65' },
+      { name: 'Debate', icon: '../assets/img/category-icons/chatbubbles-outline.svg', color: '#000' }
+    ];
+
+    const categoriesGrid = document.getElementById('categories-grid');
+    if (categoriesGrid) {
+      const angleStep = 360 / categories.length;
+      categoriesGrid.style.setProperty('--orbit-radius', 'clamp(82px, 14vw, 140px)');
+
+      categoriesGrid.innerHTML = `
+        <div class="categories-center" aria-hidden="true">
+          <strong>Categories</strong>
+          <span>Browse by topic</span>
+        </div>
+        ${categories.map((category, index) => `
+          <div class="category-item" style="--angle: ${index * angleStep - 90}deg; --icon-color: ${category.color}; --icon-mask: url('${category.icon}');" aria-hidden="true">
+            <div class="icon"></div>
+            <div class="name">${category.name}</div>
+          </div>
+        `).join('')}
+      `;
+    }
+
     // Mobile menu toggle
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileMenu = document.getElementById('mobile-menu');

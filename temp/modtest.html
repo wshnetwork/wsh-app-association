@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html>
+<!-- this is a webpage that is only used for testing, everything is subject to change based on what is being tested. -->
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/assets/wsh-white.png" />
+    <title>WSH</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <link rel="stylesheet" href="/assets/main.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <img src="/assets/wsh-white.png" alt="WSH Logo">
+            <h1>WebPurify Image Moderation Tester</h1>
+            <p class="subtitle">Test the WebPurify AIM API for image content moderation</p>
+        </header>
+
+        <div class="input-section">
+            <div class="form-group" hidden>
+                <label for="apiKey">WebPurify API Key *</label>
+                <input type="password" id="apiKey" placeholder="Enter your WebPurify API key"
+                    value="7ee10407b814bb203bef98246600ebe3">
+            </div>
+
+            <div class="form-group">
+                <label>Moderation Categories</label>
+                <div class="categories">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-porn" value="porn" checked>
+                        <label for="cat-porn">Porn</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-extremism" value="extremism" checked>
+                        <label for="cat-extremism">Extremism</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-csam" value="csam" checked>
+                        <label for="cat-csam">CSAM</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-weapons" value="weapons" checked>
+                        <label for="cat-weapons">Weapons</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-gore" value="gore" checked>
+                        <label for="cat-gore">Gore</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-drugs" value="drugs" checked>
+                        <label for="cat-drugs">Drugs</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-gestures" value="gestures" checked>
+                        <label for="cat-gestures">Gestures</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-underwear" value="underwear" checked>
+                        <label for="cat-underwear">Underwear</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-alcohol" value="alcohol" checked>
+                        <label for="cat-alcohol">Alcohol</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-gambling" value="gambling" checked>
+                        <label for="cat-gambling">Gambling</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-genai" value="genai" checked>
+                        <label for="cat-genai">Gen AI</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-id" value="ID" checked>
+                        <label for="cat-id">ID Cards</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-documents" value="documents" checked>
+                        <label for="cat-documents">Documents</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-qrbarcodes" value="qrbarcodes" checked>
+                        <label for="cat-qrbarcodes">QR/Barcodes</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-currency" value="currency" checked>
+                        <label for="cat-currency">Currency</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-face" value="face">
+                        <label for="cat-face">Face Detection</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="cat-ocr" value="ocr">
+                        <label for="cat-ocr">OCR Text</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Input Method</label>
+                <div class="input-mode">
+                    <button class="mode-button active" onclick="switchMode('url')">Image URL</button>
+                    <button class="mode-button" onclick="switchMode('file')">File Upload</button>
+                </div>
+            </div>
+
+            <div class="input-mode-content active" id="url-mode">
+                <div class="form-group">
+                    <label for="imageUrl">Image URLs (one per line) *</label>
+                    <textarea id="imageUrl" placeholder="https://example.com/image1.jpg
+https://example.com/image2.jpg
+https://example.com/image3.jpg" rows="5"></textarea>
+                </div>
+            </div>
+
+            <div class="input-mode-content" id="file-mode">
+                <div class="form-group">
+                    <label for="imageFile">Select Image Files (multiple allowed)</label>
+                    <input type="file" id="imageFile" accept="image/*" multiple>
+                </div>
+                <div class="note">
+                    📤 Images will be automatically uploaded to Firebase Storage and then checked by WebPurify.
+                </div>
+            </div>
+
+            <button class="button" onclick="submitImage()">Check Image</button>
+        </div>
+
+        <div class="results-section">
+            <h2 class="results-header">Test Results</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA86nJPGQOOTM0U-eHuhqnTi0O9EpdmX0A",
+            authDomain: "wesh-3ae30.firebaseapp.com",
+            projectId: "wesh-3ae30",
+            storageBucket: "wesh-3ae30.firebasestorage.app",
+            messagingSenderId: "831826032838",
+            appId: "1:831826032838:web:5e1c8fa3054c6ea459bfc7"
+        };
+
+        const offenceThresholds = {
+            porn: 50,
+            extremism: 40,
+            csam: 10,  // Very strict - any detection
+            weapons: 60,
+            gore: 50,
+            drugs: 55,
+            gestures: 70,
+            underwear: 75,
+            alcohol: 65,
+            gambling: 70,
+            genai: 80,
+            ID: 60,
+            documents: 80,
+            qrbarcodes: 90,
+            currency: 85,
+            face: 95  // Very lenient
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const storage = firebase.storage();
+        const storageRef = storage.ref();
+
+        let currentMode = 'url';
+        let resultCount = 0;
+
+        function switchMode(mode) {
+            currentMode = mode;
+
+            // Update buttons
+            document.querySelectorAll('.mode-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.input-mode-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(mode + '-mode').classList.add('active');
+        }
+
+        async function uploadImageToFirebase(file) {
+            return new Promise((resolve, reject) => {
+                // Create a unique filename
+                const timestamp = Date.now();
+                const randomString = Math.random().toString(36).substring(7);
+                const filename = `${timestamp}_${randomString}_${file.name}`;
+
+                // Upload to under_review folder
+                const imageRef = storageRef.child(`under_review/${filename}`);
+
+                // Upload the file
+                const uploadTask = imageRef.put(file);
+
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload is ' + progress + '% done');
+                    },
+                    (error) => {
+                        console.error('Upload error:', error);
+                        reject(error);
+                    },
+                    async () => {
+                        try {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            console.log('File uploaded to under_review:', downloadURL);
+                            // Return both URL and reference for later operations
+                            resolve({
+                                url: downloadURL,
+                                ref: imageRef,
+                                filename: filename
+                            });
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }
+                );
+            });
+        }
+
+        function evaluateAgainstThresholds(data) {
+            const violations = [];
+
+            // Check each category against its threshold
+            Object.keys(offenceThresholds).forEach(category => {
+                const value = parseFloat(data[category]) || 0;
+                const threshold = offenceThresholds[category];
+
+                if (value >= threshold) {
+                    violations.push({
+                        category: category,
+                        value: value,
+                        threshold: threshold
+                    });
+                }
+            });
+
+            return {
+                isFlagged: violations.length > 0,
+                violations: violations
+            };
+        }
+
+        async function moveImageToPassed(sourceRef, filename, originalFile) {
+            try {
+                console.log('Starting move operation for:', filename);
+
+                // Upload original file to passed folder
+                const passedRef = storageRef.child(`passed/${filename}`);
+                await passedRef.put(originalFile);
+                console.log('Uploaded to passed folder');
+
+                // Delete from under_review
+                await deleteImageFromStorage(sourceRef);
+                console.log('Deleted from under_review');
+
+            } catch (error) {
+                console.error('Error moving image:', error);
+                throw error;
+            }
+        }
+
+        async function deleteImageFromStorage(imageRef) {
+            try {
+                await imageRef.delete();
+                console.log('Image deleted from storage');
+            } catch (error) {
+                console.error('Error deleting image:', error);
+                throw error;
+            }
+        }
+
+        function getSelectedCategories() {
+            const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value).join(',');
+        }
+
+        async function submitImage() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+
+            if (!apiKey) {
+                alert('Please enter your WebPurify API key');
+                return;
+            }
+
+            let imageUrls = [];
+
+            if (currentMode === 'url') {
+                const urlInput = document.getElementById('imageUrl').value.trim();
+                if (!urlInput) {
+                    alert('Please enter at least one image URL');
+                    return;
+                }
+
+                imageUrls = urlInput.split('\n')
+                    .map(url => url.trim())
+                    .filter(url => url.length > 0);
+
+                if (imageUrls.length === 0) {
+                    alert('Please enter at least one valid image URL');
+                    return;
+                }
+            } else {
+                // File upload mode
+                const fileInput = document.getElementById('imageFile');
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    alert('Please select at least one image file');
+                    return;
+                }
+
+                // Disable file input while processing
+                fileInput.disabled = true;
+
+                // Upload files to Firebase and get URLs
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    const file = fileInput.files[i];
+
+                    // Create a temporary result item showing upload progress
+                    const resultId = ++resultCount;
+                    createResultItem(resultId, URL.createObjectURL(file), 'uploading', ['aim']);
+
+                    try {
+                        // Upload to Firebase (under_review folder)
+                        const uploadResult = await uploadImageToFirebase(file);
+
+                        // Update the result item with the actual URL
+                        const resultItem = document.getElementById(`result-${resultId}`);
+                        const imgElement = resultItem.querySelector('.result-image');
+                        imgElement.src = uploadResult.url;
+
+                        // Start moderation check with file reference AND original file
+                        checkImageWithWebPurify(resultId, uploadResult.url, apiKey, uploadResult.ref, uploadResult.filename, file);
+
+                    } catch (error) {
+                        console.error('Upload failed:', error);
+                        updateResultItem(resultId, 'error', null, `Upload failed: ${error.message}`, 'aim');
+                    }
+                }
+
+                // Re-enable file input after all uploads complete
+                fileInput.disabled = false;
+                return;
+            }
+        }
+
+        // Extract WebPurify checking logic into separate function
+        function checkImageWithWebPurify(resultId, imageUrl, apiKey, imageRef = null, filename = null, originalFile = null) {
+            const categories = getSelectedCategories();
+
+            const params = new URLSearchParams({
+                api_key: apiKey,
+                format: 'json',
+                method: 'webpurify.aim.imgcheck',
+                cats: categories,
+                imgurl: imageUrl
+            });
+
+
+            const directUrl = `https://im-api1.webpurify.com/v2/services/rest/?${params.toString()}`;
+            const corsProxy = 'https://corsproxy.io/?';
+            const apiUrl = corsProxy + encodeURIComponent(directUrl);
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(async data => {
+                    if (data.rsp && data.rsp['@attributes'] && data.rsp['@attributes'].stat === 'ok') {
+                        // Evaluate against thresholds
+                        const evaluation = evaluateAgainstThresholds(data.rsp);
+
+                        // Handle file operations if this was an uploaded file
+                        if (imageRef && filename && originalFile) {
+                            if (evaluation.isFlagged) {
+                                // FLAGGED: Delete from storage
+                                console.log('Image flagged - deleting from storage');
+                                try {
+                                    await deleteImageFromStorage(imageRef);
+                                    updateResultItem(resultId, 'flagged', data.rsp, evaluation.violations, 'aim');
+                                } catch (error) {
+                                    console.error('Failed to delete flagged image:', error);
+                                    updateResultItem(resultId, 'flagged', data.rsp, evaluation.violations, 'aim');
+                                }
+                            } else {
+                                // PASSED: Upload to passed folder and delete from under_review
+                                console.log('Image passed - uploading to passed folder');
+                                try {
+                                    await moveImageToPassed(imageRef, filename, originalFile);
+                                    updateResultItem(resultId, 'approved', data.rsp, null, 'aim');
+                                } catch (error) {
+                                    console.error('Failed to move approved image:', error);
+                                    updateResultItem(resultId, 'approved', data.rsp, null, 'aim');
+                                }
+                            }
+                        } else {
+                            // URL mode - just show results with evaluation
+                            if (evaluation.isFlagged) {
+                                updateResultItem(resultId, 'flagged', data.rsp, evaluation.violations, 'aim');
+                            } else {
+                                updateResultItem(resultId, 'approved', data.rsp, null, 'aim');
+                            }
+                        }
+                    } else {
+                        const error = data.rsp?.err?.['@attributes']?.msg || 'Unknown error occurred';
+                        updateResultItem(resultId, 'error', null, error, 'aim');
+                    }
+                })
+                .catch(error => {
+                    updateResultItem(resultId, 'error', null, error.message, 'aim');
+                });
+        }
+
+        function createResultItem(id, imageUrl, status, endpoints) {
+            const resultsContainer = document.getElementById('results');
+
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result-item';
+            resultDiv.id = `result-${id}`;
+
+            const endpointBadges = endpoints.map(ep =>
+                `<span class="endpoint-badge badge-${ep}">${ep}</span>`
+            ).join('');
+
+            const statusText = status === 'uploading' ? 'Uploading...' : 'Checking...';
+            const statusClass = status === 'uploading' ? 'status-uploading' : 'status-loading';
+
+            resultDiv.innerHTML = `
+        <div class="result-header">
+            <img src="${imageUrl}" class="result-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22150%22%3E%3Crect fill=%22%23333%22 width=%22100%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23AAA%22 font-size=%2212%22%3EError%3C/text%3E%3C/svg%3E'">
+            <div class="result-info">
+                <span class="result-status ${statusClass}">
+                    ${statusText}${endpointBadges}
+                </span>
+            </div>
+        </div>
+        <div class="result-data" id="result-data-${id}">
+            ${endpoints.includes('aim') ? '<div id="aim-results-' + id + '"></div>' : ''}
+        </div>
+    `;
+
+            resultsContainer.insertBefore(resultDiv, resultsContainer.firstChild);
+        }
+
+        function updateResultItem(id, status, data, errorOrViolations, endpoint) {
+            const resultItem = document.getElementById(`result-${id}`);
+            const statusSpan = resultItem.querySelector('.result-status');
+            const aimDiv = document.getElementById(`aim-results-${id}`);
+
+            if (status === 'approved') {
+                statusSpan.className = 'result-status status-approved';
+                statusSpan.textContent = '✓ Approved';
+
+                let html = '<div class="approval-badge badge-approved">✓ PASSED - Moved to /passed folder</div>';
+                html += '<div class="score-grid" style="margin-top: 12px;">';
+
+                const categories = [
+                    { key: 'porn', label: 'Porn' },
+                    { key: 'extremism', label: 'Extremism' },
+                    { key: 'csam', label: 'CSAM' },
+                    { key: 'weapons', label: 'Weapons' },
+                    { key: 'gore', label: 'Gore' },
+                    { key: 'drugs', label: 'Drugs' },
+                    { key: 'gestures', label: 'Gestures' },
+                    { key: 'underwear', label: 'Underwear' },
+                    { key: 'alcohol', label: 'Alcohol' },
+                    { key: 'gambling', label: 'Gambling' },
+                    { key: 'genai', label: 'Gen AI' },
+                    { key: 'ID', label: 'ID Cards' },
+                    { key: 'documents', label: 'Documents' },
+                    { key: 'qrbarcodes', label: 'QR/Barcodes' },
+                    { key: 'currency', label: 'Currency' },
+                    { key: 'face', label: 'Face Detection' }
+                ];
+
+                categories.forEach(cat => {
+                    if (data[cat.key] !== undefined && data[cat.key] > 0) {
+                        html += createScoreItem(cat.label, data[cat.key]);
+                    }
+                });
+
+                html += '</div>';
+
+                if (data.ocr_text) {
+                    html += `
+                <div class="ocr-section">
+                    <div class="ocr-label">OCR Detected Text:</div>
+                    <div class="ocr-text">${escapeHtml(data.ocr_text)}</div>
+                    ${data.ocr_profanity === '1' ? `
+                        <div class="ocr-text" style="color: #f87171; margin-top: 8px;">
+                            ⚠️ Profanity: ${escapeHtml(data.ocr_profanity_words || 'N/A')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+                }
+
+                aimDiv.innerHTML = html;
+
+            } else if (status === 'flagged') {
+                statusSpan.className = 'result-status status-flagged';
+                statusSpan.textContent = '✗ Flagged';
+
+                let html = '<div class="approval-badge badge-flagged">✗ FLAGGED - Deleted from storage</div>';
+
+                // Show violations
+                if (errorOrViolations && errorOrViolations.length > 0) {
+                    html += '<div class="violation-list">';
+                    html += '<div style="font-weight: 600; margin-bottom: 4px;">Threshold Violations:</div>';
+                    errorOrViolations.forEach(v => {
+                        html += `<div class="violation-item">• ${v.category}: ${v.value}% (threshold: ${v.threshold}%)</div>`;
+                    });
+                    html += '</div>';
+                }
+
+                html += '<div class="score-grid" style="margin-top: 12px;">';
+
+                const categories = [
+                    { key: 'porn', label: 'Porn' },
+                    { key: 'extremism', label: 'Extremism' },
+                    { key: 'csam', label: 'CSAM' },
+                    { key: 'weapons', label: 'Weapons' },
+                    { key: 'gore', label: 'Gore' },
+                    { key: 'drugs', label: 'Drugs' },
+                    { key: 'gestures', label: 'Gestures' },
+                    { key: 'underwear', label: 'Underwear' },
+                    { key: 'alcohol', label: 'Alcohol' },
+                    { key: 'gambling', label: 'Gambling' },
+                    { key: 'genai', label: 'Gen AI' },
+                    { key: 'ID', label: 'ID Cards' },
+                    { key: 'documents', label: 'Documents' },
+                    { key: 'qrbarcodes', label: 'QR/Barcodes' },
+                    { key: 'currency', label: 'Currency' },
+                    { key: 'face', label: 'Face Detection' }
+                ];
+
+                categories.forEach(cat => {
+                    if (data[cat.key] !== undefined && data[cat.key] > 0) {
+                        html += createScoreItem(cat.label, data[cat.key]);
+                    }
+                });
+
+                html += '</div>';
+
+                aimDiv.innerHTML = html;
+
+            } else if (status === 'success') {
+                // Legacy success (no approval/flagged logic)
+                statusSpan.className = 'result-status status-success';
+                statusSpan.textContent = 'Complete';
+                statusSpan.hidden = true;
+
+                let html = '<div class="score-grid">';
+
+                const categories = [
+                    { key: 'porn', label: 'Porn' },
+                    { key: 'extremism', label: 'Extremism' },
+                    { key: 'csam', label: 'CSAM' },
+                    { key: 'weapons', label: 'Weapons' },
+                    { key: 'gore', label: 'Gore' },
+                    { key: 'drugs', label: 'Drugs' },
+                    { key: 'gestures', label: 'Gestures' },
+                    { key: 'underwear', label: 'Underwear' },
+                    { key: 'alcohol', label: 'Alcohol' },
+                    { key: 'gambling', label: 'Gambling' },
+                    { key: 'genai', label: 'Gen AI' },
+                    { key: 'ID', label: 'ID Cards' },
+                    { key: 'documents', label: 'Documents' },
+                    { key: 'qrbarcodes', label: 'QR/Barcodes' },
+                    { key: 'currency', label: 'Currency' },
+                    { key: 'face', label: 'Face Detection' }
+                ];
+
+                categories.forEach(cat => {
+                    if (data[cat.key] !== undefined && data[cat.key] > 10) {
+                        html += createScoreItem(cat.label, data[cat.key]);
+                    }
+                });
+
+                html += '</div>';
+
+                if (data.ocr_text) {
+                    html += `
+                <div class="ocr-section">
+                    <div class="ocr-label">OCR Detected Text:</div>
+                    <div class="ocr-text">${escapeHtml(data.ocr_text)}</div>
+                    ${data.ocr_profanity === '1' ? `
+                        <div class="ocr-text" style="color: #f87171; margin-top: 8px;">
+                            ⚠️ Profanity: ${escapeHtml(data.ocr_profanity_words || 'N/A')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+                }
+
+                aimDiv.innerHTML = html;
+
+            } else if (status === 'error') {
+                statusSpan.className = 'result-status status-error';
+                statusSpan.textContent = 'Error';
+                aimDiv.innerHTML = `<div class="error-message">Error: ${escapeHtml(errorOrViolations)}</div>`;
+            }
+        }
+
+        function createScoreItem(label, value) {
+            const numValue = parseFloat(value);
+
+            // Only show if value > 0
+            if (numValue <= 0) {
+                return '';
+            }
+
+            let chipClass = 'chip-low';
+            let scoreClass = 'score-low';
+
+            if (numValue > 50) {
+                chipClass = 'chip-high';
+                scoreClass = 'score-high';
+            } else if (numValue > 20) {
+                chipClass = 'chip-medium';
+                scoreClass = 'score-medium';
+            }
+
+            return `
+        <div class="score-item ${chipClass}">
+            <span class="score-label">${label}</span>
+            <span class="score-value ${scoreClass}">${value}%</span>
+        </div>
+    `;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        window.addEventListener('DOMContentLoaded', function () {
+            // Test result 1: Multiple detections
+            const testId1 = ++resultCount;
+            createResultItem(testId1, 'assets/wsh-white.png', 'loading', ['aim']);
+
+            const testData1 = {
+                porn: 85,
+                gore: 25,
+                weapons: 15,
+                genai: 92
+            };
+            updateResultItem(testId1, 'success', testData1, null, 'aim');
+
+            // Test result 2: Different detections
+            const testId2 = ++resultCount;
+            createResultItem(testId2, 'assets/wsh-white.png', 'loading', ['aim']);
+
+            const testData2 = {
+                drugs: 65,
+                underwear: 45
+            };
+            updateResultItem(testId2, 'success', testData2, null, 'aim');
+        });
+    </script>
+</body>
+
+</html>
+<!-- 
+https://i.ibb.co/V097wRdg/866905-naked-model-on-the-beach-full-frontal-nude-fit-400-400.jpg
+https://i.ibb.co/jkbs3BB3/Adolf-Hitler-1933-jpg.webp
+https://i.ibb.co/Y7LNKr5p/Albert-Einstein-generated-by-AI-1024x683.webp
+https://i.ibb.co/BKdqHshm/ey-Jid-WNr-ZXQi-Oi-Jjb250-ZW50-Lmhzd3-N0-YXRp-Yy5jb20i-LCJr-ZXki-Oi-Jna-WZc-L2dld-HR5a-W1h-Z2-Vz-LTE2-Nz-Q.webp
+https://i.ibb.co/LX4kNsg7/Flag-of-the-NSDAP-1920-1945-1-1-svg.png
+https://i.ibb.co/hRh5gDkL/gettyimages-3303518-1024x1024.jpg
+https://i.ibb.co/GQVkyxZH/header-QR-code-generator-2x.webp
+https://i.ibb.co/9mp6gnbp/il-570x-N-2034144528-1jrb-jpg.avif
+https://i.ibb.co/Pvy9SZVg/images.jpg
+https://i.ibb.co/pj8Jhnb4/New-Estonian-ID-card-2021-front.jpg
+https://i.ibb.co/S7whKVB4/s-l400.jpg
+https://i.ibb.co/HftSjvFb/shutterstock-1183391278-1.jpg
+https://i.ibb.co/Q7G32Qbw/91408619-55df76d5-2245-41c1-8031-07a4da3f313f.jpg
+https://i.ibb.co/fdydCGqk/71k-N-jdu-LAL.jpg
+https://i.ibb.co/WNR5JVCh/370609-BA-5-EF5-4-FD6-B593-09-FD58851-ADC-jpeg.webp
+https://i.ibb.co/8gsXHmZj/Black-Sun.jpg
+https://i.ibb.co/5xRgDk7p/d60d4f1c-9fcc-4ae4-8058-05e885080e19-large16x9-momo2.png
+https://i.ibb.co/wFtFmyjx/Delta-Bandeau-Bikini-Top-Brown-6-Peppermayojpg-jpg.webp
+https://i.ibb.co/SWWgHvp/Flag-of-Kekistan-svg.png
+https://i.ibb.co/7tL8b6Dn/Flag-of-the-Iron-Guard-white-disk-version-svg.png
+https://i.ibb.co/HLftGYmL/g-UN.webp
+https://i.ibb.co/7tpxDj7B/il-fullxfull-2050353808-9ejg-jpg.webp
+https://i.ibb.co/mVvcxM1Y/Iron-Wolf-Infantry-Brigade-1st-Division.png
+https://i.ibb.co/Tq4qjjD0/Lenin-in-1920-cropped.jpg
+https://i.ibb.co/zT97GkFK/Portrait-of-Ruhollah-Khomeini.jpg
+https://i.ibb.co/Jjykmg4Q/s-l1200.jpg
+https://i.ibb.co/Lz1fH57n/Space-Pilot-X-Ray-Gun-made-by-Taiyo.jpg
+https://i.ibb.co/xq5knVSy/stalin-1.jpg
+https://i.ibb.co/SXvjpkGx/Gramsci.png
+https://i.ibb.co/G3N3r9dx/totenkopf-1-jpg.webp 
+https://i.ibb.co/Pz33yYC2/Benjamin-Netanyahu-February-2023.jpg
+https://i.ibb.co/Fk4b7rXh/Bundesarchiv-Bild-146-1968-101-20-A-Joseph-Goebbels.jpg
+https://i.ibb.co/Vpwd3hw3/Che-Guevara-Guerrillero-Heroico-by-Alberto-Korda.jpg
+https://i.ibb.co/1tDsB6bV/gettyimages-527191268-copy-jpg.avif
+https://i.ibb.co/SX3BPZyF/Malcolm-X-1963-press-photo.jpg
+https://i.ibb.co/fV5v758V/Martin-Luther-King-Jr.jpg
+https://i.ibb.co/9kbTnHr9/Official-portrait-of-Barack-Obama.jpg
+https://i.ibb.co/207QdwCq/Official-Presidential-Portrait-of-President-Donald-J-Trump-2025.jpg
+https://i.ibb.co/0VdZbzkz/Rosa-Luxemburg-cropped.jpg
+https://i.ibb.co/5XjtK4RT/Sir-Winston-Churchill-19086236948.jpg
+
+
+https://i.ibb.co/S4N7QmW2/Ahmed-Ben-Bella-aux-USA-oct-1962-cropped.jpg
+https://i.ibb.co/39Hv3L5L/De-Gaulle-OWI.jpg
+https://i.ibb.co/1fJFLRTW/Emmanuel-Macron-June-2025-3x4-cropped.jpg
+https://i.ibb.co/SXJh3D84/Georges-Clemenceau-par-Nadar.jpg
+https://i.ibb.co/fdRrpL9n/Le-Pen-Jean-Marie-1999-3x4-cropped.jpg
+https://i.ibb.co/Sw9VVxd2/Marine-Le-Pen-2025-3x4-cropped.jpg
+https://i.ibb.co/S7tmrpX5/Portrait-of-a-Youth-Courtesy-of-Cummer-Museum-of-Art.jpg
+https://i.ibb.co/CxJ4JTg/Robespierre.jpg
+https://i.ibb.co/5XPBhksn/JLM-EP-2016-cropped.jpg
+https://i.ibb.co/ZRXjHDzK/86712300-abaaoudnewreut.jpg
+https://i.ibb.co/DDhZRH3p/Abd-al-Qadir.jpg
+https://i.ibb.co/H5C42rQ/Charlie-Kirk-53952923573-headshot-cropped.jpg
+https://i.ibb.co/tM7pprW5/Mobutu-cropped.jpg
+https://i.ibb.co/RkbcTh6f/Patrice-Lumumba1960.jpg
+https://i.ibb.co/CKMhNCzg/t5-09ter-napoleon-fontainebleau-full-tt-width-637-height-911-crop-1-bgcolor-ffffff-lazyload-0.jpg
+-->
