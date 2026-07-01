@@ -222,7 +222,19 @@
     const categoriesGrid = document.getElementById('categories-grid');
     if (categoriesGrid) {
       const angleStep = 360 / categories.length;
-      categoriesGrid.style.setProperty('--orbit-radius', 'clamp(82px, 14vw, 140px)');
+
+      const updateCategoriesOrbit = () => {
+        const sampleItem = categoriesGrid.querySelector('.category-item');
+        if (!sampleItem) {
+          return;
+        }
+
+        const gridRect = categoriesGrid.getBoundingClientRect();
+        const itemRect = sampleItem.getBoundingClientRect();
+        const ringPadding = Math.max(8, Math.min(16, gridRect.width * 0.02));
+        const radius = Math.max(110, (Math.min(gridRect.width, gridRect.height) / 2) - (itemRect.width / 2) - ringPadding);
+        categoriesGrid.style.setProperty('--orbit-radius', `${radius}px`);
+      };
 
       categoriesGrid.innerHTML = `
         <div class="categories-center" aria-hidden="true">
@@ -236,6 +248,14 @@
           </div>
         `).join('')}
       `;
+
+      updateCategoriesOrbit();
+      window.addEventListener('resize', updateCategoriesOrbit);
+
+      if ('ResizeObserver' in window) {
+        const categoriesResizeObserver = new ResizeObserver(updateCategoriesOrbit);
+        categoriesResizeObserver.observe(categoriesGrid);
+      }
     }
 
     // Mobile menu toggle
