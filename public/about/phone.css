@@ -1,0 +1,28 @@
+/* phone.css */
+
+#phone-container {
+    position: fixed;
+    inset: 0;
+    /* full viewport, so --phone-x can place the phone anywhere across it */
+    pointer-events: none;
+    /* let scroll and link clicks pass through to the real page */
+    z-index: 5;
+    /* above section backgrounds (which are unpositioned, so they paint first), below the header (z-index: 1000) */
+    --phone-x: 50%;
+    /* updated every frame by phone.js */
+}
+
+#stage {
+    position: absolute;
+    top: 50%;
+    left: var(--phone-x);
+    width: 420px;
+    height: 440px;
+    transform: translate(-50%, -50%);
+}
+
+#stage canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
