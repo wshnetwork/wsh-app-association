@@ -1,0 +1,377 @@
+/* Categories Section */
+.categories {
+    background: #fff;
+    color: #000;
+    min-height: 100vh;
+}
+
+.categories h2 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.categories h3 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    margin-bottom: 3rem;
+    text-align: center;
+}
+
+
+/* --- Categories Grid (The Ring) --- */
+
+.categories-grid {
+    /* ---- Core dimensions (mobile-first) ---- */
+    --ring-size: clamp(260px, 90vw, 330px);
+    --item-size: clamp(80px, 13vw, 90px);
+    --icon-size: calc(var(--item-size) * 0.72);
+    --icon-glyph-size: clamp(1rem, calc(var(--icon-size) * 0.36), 2rem);
+
+    /* ---- Ring layout ---- */
+    --ring-padding: clamp(8px, 1.2vw, 14px);
+    --orbit-radius: clamp(110px, 19vw, 236px);
+
+    /* ---- Center element ---- */
+    --center-size: clamp(108px, 15vw, 160px);
+    --center-color: rgba(0, 0, 0, 0.03);
+
+    position: relative;
+    width: min(100%, var(--ring-size));
+    aspect-ratio: 1 / 1;
+    margin: 1rem auto 0;
+    overflow: visible;
+}
+
+/* --- Category Items (Orbit Elements) --- */
+
+.category-item {
+    /* ---- Positioning ---- */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    /* ---- Sizing ---- */
+    width: var(--item-size);
+    height: var(--item-size);
+
+    /* ---- Layout ---- */
+    display: grid;
+    place-items: center;
+    text-align: center;
+
+    /* ---- Visual ---- */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    /* ---- Transform ---- */
+    --item-scale: 1;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translate(var(--orbit-radius)) rotate(calc(-1 * var(--angle))) scale(var(--item-scale));
+    transform-origin: center;
+
+    /* ---- Layering ---- */
+    z-index: 1;
+    isolation: isolate;
+
+    /* ---- Interactions ---- */
+    transition: transform 0.2s, z-index 0.2s, background 0.2s;
+
+    /* ---- Touch support ---- */
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Hover/Focus States (Desktop + Touch) --- */
+
+.category-item:hover,
+.category-item:focus,
+.category-item.touch-active {
+    --item-scale: 1.1;
+    z-index: 30;
+}
+
+/* --- Background Glow (Hidden by default) --- */
+
+.category-item::before {
+    content: "";
+    position: absolute;
+    inset: -0.4rem -0.55rem -2.1rem;
+    background: linear-gradient(180deg,
+            rgba(255, 255, 255, 0.96) 0%,
+            rgba(255, 255, 255, 0.94) 58%,
+            rgba(255, 255, 255, 0.9) 100%);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.18);
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* --- Icon (Circle) --- */
+
+.category-item .icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    position: relative;
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+/* --- Icon Glyph (SVG mask) --- */
+
+.category-item .icon::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: var(--icon-glyph-size);
+    height: var(--icon-glyph-size);
+    transform: translate(-50%, -50%);
+    background-color: var(--icon-color, #111);
+    -webkit-mask: var(--icon-mask) center / contain no-repeat;
+    mask: var(--icon-mask) center / contain no-repeat;
+    transition: background-color 0.25s ease;
+}
+
+.category-item:hover .icon,
+.category-item:focus .icon,
+.category-item.touch-active .icon {
+    background: var(--icon-color);
+    border-color: var(--icon-color);
+}
+
+.category-item:hover .icon::after,
+.category-item:focus .icon::after,
+.category-item.touch-active .icon::after {
+    background-color: #fff;
+}
+
+/* --- Category Name (Hidden by default) --- */
+
+.category-item .name {
+    font-weight: 500;
+    opacity: 0;
+    position: absolute;
+    top: calc(90% + 0.55rem);
+    left: 50%;
+    white-space: nowrap;
+    transform: translate(-50%, 4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* --- Show name on hover/focus/touch --- */
+
+.category-item:hover .name,
+.category-item:focus .name,
+.category-item.touch-active .name {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* --- Center Element --- */
+
+.categories-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--center-size);
+    height: var(--center-size);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 20px 48px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+    z-index: 0;
+    background: var(--center-color);
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.categories-center strong {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+    transition: color 0.25s ease;
+}
+
+.categories-center span {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.58);
+    transition: color 0.25s ease;
+}
+
+.categories-center.active {
+    transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* --- Tablets (520px - 720px) --- */
+
+@media (min-width: 521px) {
+    .categories-grid {
+        --ring-size: clamp(280px, 88vw, 390px);
+        --item-size: clamp(50px, 12vw, 66px);
+        --center-size: 108px;
+    }
+}
+
+/* --- Small Desktops (721px - 1100px) --- */
+
+@media (min-width: 721px) {
+    .categories-grid {
+        --ring-size: clamp(320px, 72vw, 500px);
+        --item-size: clamp(52px, 9vw, 76px);
+        --center-size: clamp(110px, 15vw, 150px);
+    }
+}
+
+/* --- Large Desktops (1101px+) --- */
+
+@media (min-width: 1101px) {
+    .categories-grid {
+        --ring-size: clamp(340px, 56vw, 560px);
+        --item-size: clamp(56px, 7vw, 182px);
+        --center-size: clamp(116px, 15vw, 160px);
+    }
+}
+
+/* --- Very Small Screens (Mobile First already handles this) --- */
+
+@media (max-width: 520px) {
+    .category-item .name {
+        font-size: 0.85rem;
+    }
+}
+
+/* ============================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ============================================ */
+
+/* --- Disable hover effects on touch devices (we use .touch-active instead) --- */
+
+@media (hover: none) and (pointer: coarse) {
+
+    /* Disable ALL hover states */
+    .category-item:hover {
+        --item-scale: 1 !important;
+        background: transparent !important;
+        z-index: 1 !important;
+    }
+
+    .category-item:hover .name {
+        opacity: 0 !important;
+        transform: translate(-50%, 4px) !important;
+    }
+
+    .category-item:hover::before {
+        opacity: 0 !important;
+        transform: translateY(6px) scale(0.96) !important;
+    }
+
+    .category-item:hover .icon {
+        background: rgba(255, 255, 255, 0.92) !important;
+        border-color: rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .category-item:hover .icon::after {
+        background-color: var(--icon-color, #111) !important;
+    }
+
+    /* Disable ALL focus states */
+    .category-item:focus {
+        --item-scale: 1 !important;
+        background: transparent !important;
+        z-index: 1 !important;
+    }
+
+    .category-item:focus .icon {
+        background: rgba(255, 255, 255, 0.92) !important;
+        border-color: rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .category-item:focus .icon::after {
+        background-color: var(--icon-color, #111) !important;
+    }
+
+    .category-item:focus .name {
+        opacity: 0 !important;
+        transform: translate(-50%, 4px) !important;
+    }
+
+    .category-item:focus::before {
+        opacity: 0 !important;
+        transform: translateY(6px) scale(0.96) !important;
+    }
+
+    /* Only touch-active should work */
+    .category-item.touch-active {
+        --item-scale: 1.1 !important;
+        z-index: 30 !important;
+    }
+
+    .category-item.touch-active .icon {
+        background: var(--icon-color) !important;
+        border-color: var(--icon-color) !important;
+    }
+
+    .category-item.touch-active .icon::after {
+        background-color: #fff !important;
+    }
+
+    .category-item.touch-active .name {
+        opacity: 1 !important;
+        transform: translate(-50%, 0) !important;
+    }
+
+    .category-item.touch-active::before {
+        opacity: 0 !important;
+        transform: translateY(6px) scale(0.96) !important;
+    }
+}
+
+/* --- Ensure center text is readable on mobile --- */
+
+@media (max-width: 400px) {
+    .categories-center strong {
+        font-size: 0.95rem;
+    }
+
+    .categories-center span {
+        font-size: 0.75rem;
+    }
+}
+
+.category-item:not(.touch-active) .icon {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.category-item:not(.touch-active) .icon::after {
+    background-color: var(--icon-color, #111) !important;
+}
+
+.category-item:not(.touch-active) .name {
+    opacity: 0 !important;
+    transform: translate(-50%, 4px) !important;
+}
+
+.category-item:not(.touch-active)::before {
+    opacity: 0 !important;
+    transform: translateY(6px) scale(0.96) !important;
+}

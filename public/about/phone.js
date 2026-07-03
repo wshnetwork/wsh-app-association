@@ -8,24 +8,39 @@
 
 // Where each named position sits, as a percentage of viewport width
 // (0 = left edge, 50 = center, 100 = right edge).
-const POSITION_X = { left: 18, center: 50, right: 82 };
+const POSITION_X = { left: 30, center: 50, right: 82 };
 
-// How strongly the phone tilts to "look toward" the screen's center.
-// 0 = never tilts. Higher = more dramatic turn. Try 0.2-0.6.
-const TILT_STRENGTH = 0.4;
+// Default tilt strength when a stage doesn't set one. 0 = face forward.
+// Per-stage `tilt` values use the same scale: 0.4 is a noticeable turn,
+// 0.6+ is dramatic. Stages without a `tilt` key inherit this value.
+const BASE_TILT = 0;
 
 // A small constant downward pitch, independent of scroll, purely for
 // a nicer resting angle (like a product photo). Set to 0 to disable.
-const BASE_PITCH = -0.1;
+const BASE_PITCH = 0;
+
+// Base size of the phone. Stage `scale` values multiply on top of this.
+const BASE_SCALE = 0.7;
+
+// Status bar image overlaid on every screen frame. Set to null to disable.
+const STATUS_BAR_IMAGE = '../assets/img/screenshots/statusbar.jpg';
+const STATUS_BAR_PADDING_TOP = 18;   // px (canvas space) above the image
+const STATUS_BAR_PADDING_SIDE = 24;  // px (canvas space) on each side
 
 // How quickly the phone catches up to its scroll-driven target each
 // frame (0-1). Lower = smoother/laggier, higher = snappier/twitchier.
-const DAMPING = 0.12;
+const DAMPING = 0.9;
 
 // =================================================================
 
 const phoneContainer = document.getElementById('phone-container');
 const stage = document.getElementById('stage');
+
+const DEG_TO_RAD = Math.PI / 180;
+
+// Cached viewport dimensions — updated on resize, not every frame.
+let stageW = 0;
+let stageH = 0;
 
 const scene = new THREE.Scene();
 
@@ -40,7 +55,9 @@ camera.position.set(0, 0, 6.4);
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(stage.clientWidth, stage.clientHeight);
+stageW = stage.clientWidth;
+stageH = stage.clientHeight;
+renderer.setSize(stageW, stageH);
 stage.appendChild(renderer.domElement);
 
 scene.add(new THREE.AmbientLight(0xffffff, 0.6));
@@ -55,6 +72,7 @@ scene.add(fillLight);
 
 const phoneGroup = new THREE.Group();
 scene.add(phoneGroup);
+phoneGroup.scale.set(0.9, 0.9, 0.9);
 
 // ---------------------------------------------------------------
 // PHONE BODY - unchanged from before: a real extruded rounded-rect
@@ -119,8 +137,54 @@ const screenHeight = BODY_HEIGHT - SCREEN_INSET * 2;
 const screenRadius = BODY_RADIUS - SCREEN_INSET;
 const screenAspect = screenWidth / screenHeight;
 
-const screenShape = roundedRectShape(screenWidth, screenHeight, screenRadius);
-const screenGeometry = new THREE.ShapeGeometry(screenShape, 32);
+// Create screen geometry with proper UV mapping
+function createScreenGeometry() {
+  const shape = roundedRectShape(screenWidth, screenHeight, screenRadius);
+  const geometry = new THREE.ShapeGeometry(shape, 32);
+  
+  // Fix UV coordinates to properly map the texture to the shape
+  const positionAttribute = geometry.attributes.position;
+  const uvAttribute = geometry.attributes.uv;
+  
+  if (positionAttribute && uvAttribute) {
+    const positions = positionAttribute.array;
+    const uvs = uvAttribute.array;
+    
+    // Find bounding box
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+    
+    const rangeX = maxX - minX;
+    const rangeY = maxY - minY;
+    
+    // Remap UVs to cover the full shape
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+      
+      // Normalize to 0-1 range
+      const u = (x - minX) / rangeX;
+      const v = (y - minY) / rangeY;
+      
+      const uvIndex = (i / 3) * 2;
+      uvs[uvIndex] = u;
+      uvs[uvIndex + 1] = v;
+    }
+  }
+  
+  return geometry;
+}
+
+const screenGeometry = createScreenGeometry();
 
 const FRONT_Z = BODY_DEPTH / 2 + BEVEL_THICKNESS + 0.005;
 
@@ -129,22 +193,27 @@ function makeScreenMesh(zOffset) {
     transparent: true,
     opacity: 1,
     depthWrite: false, // avoids z-fighting flicker between the two overlapping planes
+    side: THREE.DoubleSide, // Render both sides for safety
   });
-  const mesh = new THREE.Mesh(screenGeometry, material);
+  const mesh = new THREE.Mesh(screenGeometry.clone(), material);
   mesh.position.z = FRONT_Z + zOffset;
   phoneGroup.add(mesh);
   return mesh;
 }
 
 const screenMeshA = makeScreenMesh(0);
-const screenMeshB = makeScreenMesh(0.001);
-screenMeshB.material.opacity = 0;
+
+// Single composite canvas — all transition types are drawn here each frame
+const { canvas: compositeCanvas, ctx: compositeCtx } = makeBlankScreenCanvas();
+const compositeTexture = new THREE.CanvasTexture(compositeCanvas);
+screenMeshA.material.map = compositeTexture;
+screenMeshA.material.opacity = 1;
 
 // fallback so nothing looks broken if a stage has no images configured
 function makeBlankScreenCanvas() {
   const canvas = document.createElement('canvas');
-  canvas.width = 512;
-  canvas.height = Math.round(512 / screenAspect);
+  canvas.width = 1024;
+  canvas.height = Math.round(1024 / screenAspect);
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#000000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -152,6 +221,9 @@ function makeBlankScreenCanvas() {
 }
 
 const FALLBACK_TEXTURE = new THREE.CanvasTexture(makeBlankScreenCanvas().canvas);
+
+const statusBarImg = STATUS_BAR_IMAGE ? new Image() : null;
+if (statusBarImg) statusBarImg.src = STATUS_BAR_IMAGE;
 
 const textureCache = new Map();
 
@@ -171,24 +243,41 @@ function getTexture(url) {
   textureCache.set(url, { texture, canvas, ctx });
 
   const img = new Image();
-  // needed for images hosted on another domain - that domain must also
-  // send CORS headers or the canvas becomes "tainted" and drawImage/texture
-  // upload will fail. If a remote screenshot silently stays black, this is
-  // almost certainly why - safest fix is hosting the image in your own
-  // assets folder (same-origin never has this problem).
   img.crossOrigin = 'anonymous';
   img.onload = () => {
-    const scale = canvas.width / img.width; // always fill the full width
-    const drawWidth = canvas.width;
-    const drawHeight = img.height * scale;
-    const drawY = (canvas.height - drawHeight) / 2; // center vertically; canvas clipping handles overflow automatically
+    // Calculate scaling to maintain aspect ratio while filling width
+    const imgAspect = img.width / img.height;
+    const canvasAspect = canvas.width / canvas.height;
+    
+    let drawWidth, drawHeight;
+    let offsetX = 0, offsetY = 0;
+    
+    if (imgAspect >= canvasAspect) {
+      // Image is wider or equal - match width, clip height
+      drawWidth = canvas.width;
+      drawHeight = canvas.width / imgAspect;
+      offsetY = (canvas.height - drawHeight) / 2;
+    } else {
+      // Image is taller - match height, clip width
+      drawHeight = canvas.height;
+      drawWidth = canvas.height * imgAspect;
+      offsetX = (canvas.width - drawWidth) / 2;
+    }
 
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, drawY, drawWidth, drawHeight);
+    ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     texture.needsUpdate = true;
   };
   img.src = url;
+
+  // Handle loading errors
+  img.onerror = () => {
+    console.warn('Failed to load image:', url);
+    // Use fallback texture
+    texture.image = FALLBACK_TEXTURE.image;
+    texture.needsUpdate = true;
+  };
 
   return texture;
 }
@@ -198,6 +287,81 @@ function getStageImageUrl(stageConfig) {
     return null;
   }
   return stageConfig.images[stageConfig.activeImage || 0] || stageConfig.images[0];
+}
+
+function getImageCanvas(url) {
+  if (!url) return null;
+  const entry = textureCache.get(url);
+  return entry ? entry.canvas : null;
+}
+
+function drawStatusBar(w) {
+  if (statusBarImg && statusBarImg.complete && statusBarImg.naturalWidth > 0) {
+    const imgW = w - STATUS_BAR_PADDING_SIDE * 2;
+    const imgH = Math.round(imgW * (statusBarImg.naturalHeight / statusBarImg.naturalWidth));
+    const totalH = STATUS_BAR_PADDING_TOP + imgH;
+    compositeCtx.fillStyle = '#000000';
+    compositeCtx.fillRect(0, 0, w, totalH);
+    compositeCtx.drawImage(statusBarImg, STATUS_BAR_PADDING_SIDE, STATUS_BAR_PADDING_TOP, imgW, imgH);
+  }
+}
+
+let _lastUrlA = null, _lastUrlB = null, _lastMixT = -1, _lastTransition = null;
+
+function compositeImages(urlA, urlB, mixT, transition) {
+  // Skip redraw if inputs haven't changed
+  if (urlA === _lastUrlA && urlB === _lastUrlB && mixT === _lastMixT && transition === _lastTransition) return;
+  _lastUrlA = urlA; _lastUrlB = urlB; _lastMixT = mixT; _lastTransition = transition;
+
+  const w = compositeCanvas.width;
+  const h = compositeCanvas.height;
+  compositeCtx.clearRect(0, 0, w, h);
+  compositeCtx.fillStyle = '#000000';
+  compositeCtx.fillRect(0, 0, w, h);
+
+  const canvasA = getImageCanvas(urlA);
+  const canvasB = getImageCanvas(urlB);
+
+  if (urlA === urlB || mixT <= 0) {
+    if (canvasA) compositeCtx.drawImage(canvasA, 0, 0);
+    drawStatusBar(w);
+    compositeTexture.needsUpdate = true;
+    return;
+  }
+  if (mixT >= 1) {
+    if (canvasB) compositeCtx.drawImage(canvasB, 0, 0);
+    drawStatusBar(w);
+    compositeTexture.needsUpdate = true;
+    return;
+  }
+
+  if (transition === 'scrollUp') {
+    if (canvasA) compositeCtx.drawImage(canvasA, 0, -mixT * h);
+    if (canvasB) compositeCtx.drawImage(canvasB, 0, (1 - mixT) * h);
+  } else if (transition === 'slideLeft') {
+    if (canvasA) compositeCtx.drawImage(canvasA, -mixT * w, 0);
+    if (canvasB) compositeCtx.drawImage(canvasB, (1 - mixT) * w, 0);
+  } else if (transition === 'popUp') {
+    // B slides up from the bottom, covering A which stays still
+    if (canvasA) compositeCtx.drawImage(canvasA, 0, 0);
+    if (canvasB) compositeCtx.drawImage(canvasB, 0, (1 - mixT) * h);
+  } else if (transition === 'popDown') {
+    // B sits still underneath, A slides down revealing B
+    if (canvasB) compositeCtx.drawImage(canvasB, 0, 0);
+    if (canvasA) compositeCtx.drawImage(canvasA, 0, mixT * h);
+  } else {
+    // 'fade' (default)
+    if (canvasA) compositeCtx.drawImage(canvasA, 0, 0);
+    if (canvasB) {
+      compositeCtx.globalAlpha = mixT;
+      compositeCtx.drawImage(canvasB, 0, 0);
+      compositeCtx.globalAlpha = 1;
+    }
+  }
+
+  drawStatusBar(w);
+
+  compositeTexture.needsUpdate = true;
 }
 
 // ---------------------------------------------------------------
@@ -216,26 +380,37 @@ phoneGroup.add(notchMesh);
 
 let resolvedStages = [];
 
+function docOffsetTop(el) {
+  return el.getBoundingClientRect().top + window.scrollY;
+}
+
 function resolveStages() {
-  resolvedStages = STAGES
+  const sorted = STAGES
     .map((stageConfig) => {
       const el = document.getElementById(stageConfig.section);
-      if (!el) return null; // silently skips a stage if its section id isn't on the page
+      if (!el) return null;
       return { config: stageConfig, el };
     })
     .filter(Boolean)
-    // sort by actual vertical position on the page, so STAGES order
-    // doesn't have to be perfectly hand-maintained
-    .sort((a, b) => a.el.offsetTop - b.el.offsetTop)
-    .map((entry) => ({
-      config: entry.config,
-      // anchor = vertical center of the section, in document coordinates
-      anchor: entry.el.offsetTop + entry.el.offsetHeight / 2,
-    }));
+    .sort((a, b) => docOffsetTop(a.el) - docOffsetTop(b.el));
+
+  resolvedStages = sorted.map((entry) => ({
+    config: entry.config,
+    anchor: docOffsetTop(entry.el) + entry.el.offsetHeight / 2,
+  }));
 }
 
-resolveStages();
+// Run after load so getBoundingClientRect returns real values, and again
+// after a short delay to catch dynamically rendered content (e.g. categories grid).
+window.addEventListener('load', () => {
+  resolveStages();
+  setTimeout(resolveStages, 400);
+});
 window.addEventListener('resize', resolveStages);
+
+// Trigger the slide-in animation once the page has painted.
+// Sticky handles show/hide from here on — no scroll listener needed.
+requestAnimationFrame(() => phoneContainer.classList.add('phone-visible'));
 
 // ---------------------------------------------------------------
 // SCROLL -> TARGET POSE
@@ -249,30 +424,35 @@ function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
-// returns { percent, imageUrlA, imageUrlB, mixT }
+function stageTilt(stageConfig) {
+  return stageConfig.tilt ?? BASE_TILT;
+}
+
+function stageScale(stageConfig) {
+  return stageConfig.scale ?? 1;
+}
+
+// returns { percent, tilt, scale, imageUrlA, imageUrlB, mixT, imageTransition }
 function computeTarget() {
   if (resolvedStages.length === 0) {
-    return { percent: POSITION_X.center, imageUrlA: null, imageUrlB: null, mixT: 0 };
+    return { percent: POSITION_X.center, tilt: BASE_TILT, scale: 1, imageUrlA: null, imageUrlB: null, mixT: 0, imageTransition: 'fade' };
   }
 
   const scrollCenter = window.scrollY + window.innerHeight / 2;
 
-  // before the first configured stage: hold its pose
   if (scrollCenter <= resolvedStages[0].anchor) {
     const s = resolvedStages[0].config;
     const url = getStageImageUrl(s);
-    return { percent: POSITION_X[s.position] ?? POSITION_X.center, imageUrlA: url, imageUrlB: url, mixT: 0 };
+    return { percent: POSITION_X[s.position] ?? POSITION_X.center, tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
   }
 
-  // after the last configured stage: hold its pose
   const last = resolvedStages[resolvedStages.length - 1];
   if (scrollCenter >= last.anchor) {
     const s = last.config;
     const url = getStageImageUrl(s);
-    return { percent: POSITION_X[s.position] ?? POSITION_X.center, imageUrlA: url, imageUrlB: url, mixT: 0 };
+    return { percent: POSITION_X[s.position] ?? POSITION_X.center, tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
   }
 
-  // find which pair of stages we're between
   for (let i = 0; i < resolvedStages.length - 1; i++) {
     const a = resolvedStages[i];
     const b = resolvedStages[i + 1];
@@ -282,65 +462,86 @@ function computeTarget() {
       const percentB = POSITION_X[b.config.position] ?? POSITION_X.center;
       return {
         percent: lerp(percentA, percentB, t),
+        tilt: lerp(stageTilt(a.config), stageTilt(b.config), t),
+        scale: lerp(stageScale(a.config), stageScale(b.config), t),
         imageUrlA: getStageImageUrl(a.config),
         imageUrlB: getStageImageUrl(b.config),
         mixT: t,
+        imageTransition: b.config.imageTransition || 'fade',
       };
     }
   }
 
-  // fallback, shouldn't normally hit this
   const s = resolvedStages[0].config;
   const url = getStageImageUrl(s);
-  return { percent: POSITION_X[s.position] ?? POSITION_X.center, imageUrlA: url, imageUrlB: url, mixT: 0 };
+  return { percent: POSITION_X[s.position] ?? POSITION_X.center, tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
 }
 
 // ---------------------------------------------------------------
 // RENDER LOOP - damped toward the scroll-derived target each frame
 // ---------------------------------------------------------------
 
-let currentPercent = POSITION_X.center;
-let lastImageA = null;
-let lastImageB = null;
+// Initialise current pose to the first stage so the phone slides in
+// already sitting at the correct position, not drifting from center.
+const _first = resolvedStages.length > 0 ? resolvedStages[0].config : null;
+let currentPercent = _first ? (POSITION_X[_first.position] ?? POSITION_X.center) : POSITION_X.center;
+let currentTilt    = _first ? stageTilt(_first)  : BASE_TILT;
+let currentScale   = _first ? stageScale(_first) : 1;
+
+const EPSILON = 0.0001;
 
 function tick() {
   const target = computeTarget();
 
+  const prevPercent = currentPercent;
+  const prevTilt    = currentTilt;
+  const prevScale   = currentScale;
+
   currentPercent += (target.percent - currentPercent) * DAMPING;
+  currentTilt    += (target.tilt    - currentTilt)    * DAMPING;
+  currentScale   += (target.scale   - currentScale)   * DAMPING;
 
-  // position the phone horizontally
-  phoneContainer.style.setProperty('--phone-x', currentPercent + '%');
+  const poseChanged = (
+    Math.abs(currentPercent - prevPercent) > EPSILON ||
+    Math.abs(currentTilt    - prevTilt)    > EPSILON ||
+    Math.abs(currentScale   - prevScale)   > EPSILON
+  );
 
-  // tilt toward center, derived from the CURRENT resolved position so
-  // it stays correct mid-transition, not just at named stops
-  const normalized = (currentPercent - 50) / 50; // -1 (left) .. 0 (center) .. 1 (right)
-  // NOTE: if the phone turns AWAY from center instead of toward it,
-  // just delete the leading "-" on the next line.
-  phoneGroup.rotation.y = -normalized * TILT_STRENGTH;
-  phoneGroup.rotation.x = BASE_PITCH;
+  const offsetX = -(currentPercent / 100 - 0.5) * stageW;
 
-  // swap/crossfade screen images only when the target pair actually changes,
-  // to avoid needless texture reassignment every frame
-  if (target.imageUrlA !== lastImageA) {
-    screenMeshA.material.map = getTexture(target.imageUrlA);
-    screenMeshA.material.needsUpdate = true;
-    lastImageA = target.imageUrlA;
+  if (poseChanged) {
+    camera.setViewOffset(stageW, stageH, offsetX, 0, stageW, stageH);
+    phoneGroup.rotation.y = currentTilt * DEG_TO_RAD;
+    phoneGroup.rotation.x = BASE_PITCH;
+    phoneGroup.scale.setScalar(BASE_SCALE * currentScale);
   }
-  if (target.imageUrlB !== lastImageB) {
-    screenMeshB.material.map = getTexture(target.imageUrlB);
-    screenMeshB.material.needsUpdate = true;
-    lastImageB = target.imageUrlB;
-  }
-  screenMeshA.material.opacity = 1 - target.mixT;
-  screenMeshB.material.opacity = target.mixT;
 
-  renderer.render(scene, camera);
+  // Ensure both images are queued for loading, then composite them
+  getTexture(target.imageUrlA);
+  getTexture(target.imageUrlB);
+
+  // Check if composite needs redraw BEFORE calling compositeImages (which updates _last* values)
+  const compositeChanged = (
+    target.imageUrlA !== _lastUrlA ||
+    target.imageUrlB !== _lastUrlB ||
+    target.mixT      !== _lastMixT ||
+    target.imageTransition !== _lastTransition
+  );
+  compositeImages(target.imageUrlA, target.imageUrlB, target.mixT, target.imageTransition);
+
+  if (poseChanged || compositeChanged) {
+    renderer.render(scene, camera);
+  }
+
   requestAnimationFrame(tick);
 }
 tick();
 
 window.addEventListener('resize', () => {
-  camera.aspect = stage.clientWidth / stage.clientHeight;
+  stageW = stage.clientWidth;
+  stageH = stage.clientHeight;
+  camera.aspect = stageW / stageH;
   camera.updateProjectionMatrix();
-  renderer.setSize(stage.clientWidth, stage.clientHeight);
+  renderer.setSize(stageW, stageH);
+  camera.clearViewOffset();
 });

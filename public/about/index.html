@@ -3,66 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="author" content="Michael Benjamin Mocioiu" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>WSH - The First Student Social Network</title>
+    <link rel="stylesheet" href="../assets/main.css" />
     <link rel="stylesheet" href="./about.css" />
+    <link rel="stylesheet" href="./categories.css" />
     <link rel="stylesheet" href="./phone.css" />
     <link rel="icon" type="image/png" href="../assets/img/wsh-white.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
-    <!-- Header -->
-    <header>
-      <div class="header-container">
-        <div class="logo-section">
-          <img src="../assets/img/wsh-white-2.svg" alt="WSH" />
-          <span>WSH</span>
-        </div>
-        <nav id="desktop-nav">
-          <a href="#problem">The Problem</a>
-          <a href="#solution">Our Solution</a>
-          <a href="#identity">Identity</a>
-          <a href="#categories">Categories</a>
-          <a href="#moderation">Moderation</a>
-          <a href="#value">Value</a>
-          <a href="/docs/index.html" rel="nooener noreferrer">Legal</a>
-          <a
-            href="/download/index.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Download ↗</a
-          >
-        </nav>
-        <button
-          class="mobile-menu-btn"
-          id="mobile-menu-btn"
-          aria-label="Toggle menu"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="mobile-menu" id="mobile-menu">
-        <a href="#problem">The Problem</a>
-        <a href="#solution">Our Solution</a>
-        <a href="#identity">Identity</a>
-        <a href="#categories">Categories</a>
-        <a href="#value">Value</a>
-        <a href="/docs/index.html" rel="nooener noreferrer">Legal</a>
-        <a href="/download/index.html" target="_blank" rel="noopener noreferrer"
-          >Download ↗</a
-        >
-      </div>
-    </header>
+    <script src="../assets/header.js"></script>
+    <script>
+      initHeader([
+        { label: "The Problem", href: "#problem" },
+        { label: "Our Solution", href: "#solution" },
+        { label: "Identity", href: "#identity" },
+        { label: "Categories", href: "#categories" },
+        { label: "Moderation", href: "#moderation" },
+        { label: "Value", href: "#value" },
+        { label: "Legal", href: "/docs/" },
+        { label: "Download ↗", href: "/download/", external: true },
+      ]);
+    </script>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -75,8 +39,14 @@
       </div>
     </section>
 
+    <div id="sections-wrapper">
+
+    <div id="phone-container">
+      <div id="stage"></div>
+    </div>
+
     <!-- Problem Section -->
-    <section id="problem" class="problem">
+    <section id="problem" class="problem section-black">
       <div class="container">
         <div class="problem-grid">
           <div>
@@ -94,7 +64,7 @@
             </p>
           </div>
           <div style="text-align: center">
-            <img src="../assets/img/welcome.jpeg" alt="WSH Welcome Screen" />
+            <img src="../assets/img/screenshots/welcome.jpeg" alt="WSH Welcome Screen" />
           </div>
         </div>
       </div>
@@ -136,7 +106,7 @@
 
 
     <!-- Identity Section -->
-    <section id="identity" class="identity">
+    <section id="identity" class="section section-black">
       <div class="container">
         <div class="identity-layout">
           <div class="identity-image-wrap">
@@ -281,10 +251,7 @@
       </div>
     </section>
 
-
-    <!-- <div id="phone-container">
-      <div id="stage"></div>
-    </div> -->
+    </div><!-- end #sections-wrapper -->
 
 
     <!-- Footer -->
@@ -373,23 +340,10 @@
       </div>
     </footer>
 
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="stages.js"></script>
+  <script src="phone.js"></script> -->
     <script>
-
-      // Mobile menu toggle
-      const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-      const mobileMenu = document.getElementById("mobile-menu");
-
-      mobileMenuBtn.addEventListener("click", () => {
-        mobileMenu.classList.toggle("active");
-      });
-
-      // Close mobile menu when clicking a link
-      const mobileLinks = mobileMenu.querySelectorAll("a");
-      mobileLinks.forEach((link) => {
-        link.addEventListener("click", () => {
-          mobileMenu.classList.remove("active");
-        });
-      });
 
       // Smooth scroll for anchor links
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
@@ -414,11 +368,15 @@
         section.dataset.headerTheme = index % 2 === 0 ? "light" : "dark";
       });
 
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      const statusBarMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
       const applyHeaderTheme = (theme) => {
         const dark = theme === "dark";
 
         header.classList.toggle("header-on-dark", dark);
         body.classList.toggle("body-on-dark", dark);
+        if (themeColorMeta) themeColorMeta.content = dark ? "#0a0a0a" : "#ffffff";
+        if (statusBarMeta) statusBarMeta.content = dark ? "black" : "default";
       };
 
       const syncHeaderThemeToViewport = () => {
@@ -451,8 +409,5 @@
       window.addEventListener("resize", syncHeaderThemeToViewport);
     </script>
     <script src="categories.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="stages.js"></script>
-    <script src="phone.js"></script> -->
   </body>
 </html>
