@@ -6,9 +6,13 @@
 
 // ===================== TWEAKABLE CONSTANTS ======================
 
-// Where each named position sits, as a percentage of viewport width
-// (0 = left edge, 50 = center, 100 = right edge).
-const POSITION_X = { left: 30, center: 50, right: 82 };
+// Set to false to disable the 3D phone entirely. Section images will
+// remain visible at full opacity as a fallback.
+const ENABLED = true;
+
+// Named position shorthands (1–100, percentage of viewport width).
+// Stages can use these names or pass a raw number directly.
+const POSITION_X = { left: 30, center: 50, right: 70 };
 
 // Default tilt strength when a stage doesn't set one. 0 = face forward.
 // Per-stage `tilt` values use the same scale: 0.4 is a noticeable turn,
@@ -31,7 +35,14 @@ const STATUS_BAR_PADDING_SIDE = 24;  // px (canvas space) on each side
 // frame (0-1). Lower = smoother/laggier, higher = snappier/twitchier.
 const DAMPING = 0.9;
 
+const SCREEN_FILL_COLOR = '#0a0a0a';
+
 // =================================================================
+
+if (!ENABLED) {
+  // Leave section images visible — nothing more to do.
+  throw new Error('[phone.js] ENABLED is false — 3D phone disabled.');
+}
 
 const phoneContainer = document.getElementById('phone-container');
 const stage = document.getElementById('stage');
@@ -264,10 +275,12 @@ function getTexture(url) {
       offsetX = (canvas.width - drawWidth) / 2;
     }
 
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = SCREEN_FILL_COLOR;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
     texture.needsUpdate = true;
+    // Force composite to redraw now that this image is available
+    _lastUrlA = null;
   };
   img.src = url;
 
@@ -295,15 +308,19 @@ function getImageCanvas(url) {
   return entry ? entry.canvas : null;
 }
 
-function drawStatusBar(w) {
+function drawStatusBarOnCtx(ctx, w) {
   if (statusBarImg && statusBarImg.complete && statusBarImg.naturalWidth > 0) {
     const imgW = w - STATUS_BAR_PADDING_SIDE * 2;
     const imgH = Math.round(imgW * (statusBarImg.naturalHeight / statusBarImg.naturalWidth));
     const totalH = STATUS_BAR_PADDING_TOP + imgH;
-    compositeCtx.fillStyle = '#000000';
-    compositeCtx.fillRect(0, 0, w, totalH);
-    compositeCtx.drawImage(statusBarImg, STATUS_BAR_PADDING_SIDE, STATUS_BAR_PADDING_TOP, imgW, imgH);
+    ctx.fillStyle = SCREEN_FILL_COLOR;
+    ctx.fillRect(0, 0, w, totalH);
+    ctx.drawImage(statusBarImg, STATUS_BAR_PADDING_SIDE, STATUS_BAR_PADDING_TOP, imgW, imgH);
   }
+}
+
+function drawStatusBar(w) {
+  drawStatusBarOnCtx(compositeCtx, w);
 }
 
 let _lastUrlA = null, _lastUrlB = null, _lastMixT = -1, _lastTransition = null;
@@ -316,7 +333,7 @@ function compositeImages(urlA, urlB, mixT, transition) {
   const w = compositeCanvas.width;
   const h = compositeCanvas.height;
   compositeCtx.clearRect(0, 0, w, h);
-  compositeCtx.fillStyle = '#000000';
+  compositeCtx.fillStyle = SCREEN_FILL_COLOR;
   compositeCtx.fillRect(0, 0, w, h);
 
   const canvasA = getImageCanvas(urlA);
@@ -407,10 +424,16 @@ window.addEventListener('load', () => {
   setTimeout(resolveStages, 400);
 });
 window.addEventListener('resize', resolveStages);
+window.addEventListener('scroll', () => {
+  if (_overrideImageUrl) window.setPhoneImageOverride(null);
+}, { passive: true });
 
 // Trigger the slide-in animation once the page has painted.
 // Sticky handles show/hide from here on — no scroll listener needed.
-requestAnimationFrame(() => phoneContainer.classList.add('phone-visible'));
+requestAnimationFrame(() => {
+  phoneContainer.classList.add('phone-visible');
+  document.body.classList.add('phone-active');
+});
 
 // ---------------------------------------------------------------
 // SCROLL -> TARGET POSE
@@ -424,6 +447,15 @@ function lerp(a, b, t) {
   return a + (b - a) * t;
 }
 
+function resolvePosition(position) {
+  if (typeof position === 'number') return position;
+  return POSITION_X[position] ?? POSITION_X.center;
+}
+
+function resolvePositionY(positionY) {
+  return typeof positionY === 'number' ? positionY : 50;
+}
+
 function stageTilt(stageConfig) {
   return stageConfig.tilt ?? BASE_TILT;
 }
@@ -432,10 +464,18 @@ function stageScale(stageConfig) {
   return stageConfig.scale ?? 1;
 }
 
-// returns { percent, tilt, scale, imageUrlA, imageUrlB, mixT, imageTransition }
+// returns { percent, percentY, tilt, scale, imageUrlA, imageUrlB, mixT, imageTransition }
 function computeTarget() {
+  if (_overrideImageUrl) {
+    const base = _computeScrollTarget();
+    return { ...base, imageUrlA: _overrideImageUrl, imageUrlB: _overrideImageUrl, mixT: 0 };
+  }
+  return _computeScrollTarget();
+}
+
+function _computeScrollTarget() {
   if (resolvedStages.length === 0) {
-    return { percent: POSITION_X.center, tilt: BASE_TILT, scale: 1, imageUrlA: null, imageUrlB: null, mixT: 0, imageTransition: 'fade' };
+    return { percent: POSITION_X.center, percentY: 50, tilt: BASE_TILT, scale: 1, imageUrlA: null, imageUrlB: null, mixT: 0, imageTransition: 'fade' };
   }
 
   const scrollCenter = window.scrollY + window.innerHeight / 2;
@@ -443,14 +483,14 @@ function computeTarget() {
   if (scrollCenter <= resolvedStages[0].anchor) {
     const s = resolvedStages[0].config;
     const url = getStageImageUrl(s);
-    return { percent: POSITION_X[s.position] ?? POSITION_X.center, tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
+    return { percent: resolvePosition(s.position), percentY: resolvePositionY(s.positionY), tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
   }
 
   const last = resolvedStages[resolvedStages.length - 1];
   if (scrollCenter >= last.anchor) {
     const s = last.config;
     const url = getStageImageUrl(s);
-    return { percent: POSITION_X[s.position] ?? POSITION_X.center, tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
+    return { percent: resolvePosition(s.position), percentY: resolvePositionY(s.positionY), tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
   }
 
   for (let i = 0; i < resolvedStages.length - 1; i++) {
@@ -458,10 +498,11 @@ function computeTarget() {
     const b = resolvedStages[i + 1];
     if (scrollCenter >= a.anchor && scrollCenter <= b.anchor) {
       const t = (scrollCenter - a.anchor) / (b.anchor - a.anchor);
-      const percentA = POSITION_X[a.config.position] ?? POSITION_X.center;
-      const percentB = POSITION_X[b.config.position] ?? POSITION_X.center;
+      const percentA = resolvePosition(a.config.position);
+      const percentB = resolvePosition(b.config.position);
       return {
         percent: lerp(percentA, percentB, t),
+        percentY: lerp(resolvePositionY(a.config.positionY), resolvePositionY(b.config.positionY), t),
         tilt: lerp(stageTilt(a.config), stageTilt(b.config), t),
         scale: lerp(stageScale(a.config), stageScale(b.config), t),
         imageUrlA: getStageImageUrl(a.config),
@@ -474,8 +515,19 @@ function computeTarget() {
 
   const s = resolvedStages[0].config;
   const url = getStageImageUrl(s);
-  return { percent: POSITION_X[s.position] ?? POSITION_X.center, tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
+  return { percent: resolvePosition(s.position), percentY: resolvePositionY(s.positionY), tilt: stageTilt(s), scale: stageScale(s), imageUrlA: url, imageUrlB: url, mixT: 0, imageTransition: 'fade' };
 }
+
+let _overrideImageUrl = null;
+let _poseSettled = false;
+
+window.setPhoneImageOverride = function(url) {
+  if (!_poseSettled && url) return;
+  if (url === _overrideImageUrl) return;
+  _overrideImageUrl = url;
+  if (url) getTexture(url); // preload so it's ready for the next tick
+  _lastUrlA = null;         // bust composite cache to force immediate redraw
+};
 
 // ---------------------------------------------------------------
 // RENDER LOOP - damped toward the scroll-derived target each frame
@@ -484,33 +536,39 @@ function computeTarget() {
 // Initialise current pose to the first stage so the phone slides in
 // already sitting at the correct position, not drifting from center.
 const _first = resolvedStages.length > 0 ? resolvedStages[0].config : null;
-let currentPercent = _first ? (POSITION_X[_first.position] ?? POSITION_X.center) : POSITION_X.center;
-let currentTilt    = _first ? stageTilt(_first)  : BASE_TILT;
-let currentScale   = _first ? stageScale(_first) : 1;
+let currentPercent  = _first ? resolvePosition(_first.position)   : POSITION_X.center;
+let currentPercentY = _first ? resolvePositionY(_first.positionY) : 50;
+let currentTilt     = _first ? stageTilt(_first)  : BASE_TILT;
+let currentScale    = _first ? stageScale(_first) : 1;
 
 const EPSILON = 0.0001;
 
 function tick() {
   const target = computeTarget();
 
-  const prevPercent = currentPercent;
-  const prevTilt    = currentTilt;
-  const prevScale   = currentScale;
+  const prevPercent  = currentPercent;
+  const prevPercentY = currentPercentY;
+  const prevTilt     = currentTilt;
+  const prevScale    = currentScale;
 
-  currentPercent += (target.percent - currentPercent) * DAMPING;
-  currentTilt    += (target.tilt    - currentTilt)    * DAMPING;
-  currentScale   += (target.scale   - currentScale)   * DAMPING;
+  currentPercent  += (target.percent  - currentPercent)  * DAMPING;
+  currentPercentY += (target.percentY - currentPercentY) * DAMPING;
+  currentTilt     += (target.tilt     - currentTilt)     * DAMPING;
+  currentScale    += (target.scale    - currentScale)    * DAMPING;
 
   const poseChanged = (
-    Math.abs(currentPercent - prevPercent) > EPSILON ||
-    Math.abs(currentTilt    - prevTilt)    > EPSILON ||
-    Math.abs(currentScale   - prevScale)   > EPSILON
+    Math.abs(currentPercent  - prevPercent)  > EPSILON ||
+    Math.abs(currentPercentY - prevPercentY) > EPSILON ||
+    Math.abs(currentTilt     - prevTilt)     > EPSILON ||
+    Math.abs(currentScale    - prevScale)    > EPSILON
   );
+  _poseSettled = !poseChanged;
 
-  const offsetX = -(currentPercent / 100 - 0.5) * stageW;
+  const offsetX = -(currentPercent  / 100 - 0.5) * stageW;
+  const offsetY =  (currentPercentY / 100 - 0.5) * stageH;
 
   if (poseChanged) {
-    camera.setViewOffset(stageW, stageH, offsetX, 0, stageW, stageH);
+    camera.setViewOffset(stageW, stageH, offsetX, offsetY, stageW, stageH);
     phoneGroup.rotation.y = currentTilt * DEG_TO_RAD;
     phoneGroup.rotation.x = BASE_PITCH;
     phoneGroup.scale.setScalar(BASE_SCALE * currentScale);

@@ -201,6 +201,13 @@ body.has-header {
   padding: 8rem 0;
 }
 
+@media (max-width: 768px) {
+  .section {
+    height: 1vh;
+    
+  }
+}
+
 .section-black {
   background: var(--black);
   color: var(--white);
@@ -316,7 +323,7 @@ h3 {
     color: rgba(var(--black-rgb), 0.9);
     margin-top: 30px;
     margin-bottom: 10px;
-    font-size: 16px;
+    font-size: 1.6rem;
 }
 
 .section-black h3 {
@@ -326,7 +333,12 @@ h3 {
 
 p,
 li {
-  color: #aaa;
+  color: rgba(var(--black-rgb), 0.8);
+  line-height: 1.6;
+}
+.section-black p,
+.section-black li {
+  color: rgba(var(--white-rgb), 0.8);
   line-height: 1.6;
 }
 
@@ -335,7 +347,11 @@ li {
 }
 
 strong {
-  color: #ddd;
+  color: var(--black);
+}
+
+.section-black strong {
+  color: var(--white);
 }
 
 /* ===== Layout Containers ===== */
@@ -365,6 +381,9 @@ section {
   text-align: center;
 }
 
+.mb-md {
+  margin-bottom: 2rem;
+}
 .mb-lg {
   margin-bottom: 4rem;
 }

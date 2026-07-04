@@ -46,7 +46,7 @@
     </div>
 
     <!-- Problem Section -->
-    <section id="problem" class="problem section-black">
+    <section id="problem" class="problem section-black disable-select">
       <div class="container">
         <div class="problem-grid">
           <div>
@@ -67,11 +67,12 @@
             <img src="../assets/img/screenshots/welcome.jpeg" alt="WSH Welcome Screen" />
           </div>
         </div>
+        <!-- <a href="#solution" class="btn">...</a> -->
       </div>
     </section>
     
     <!-- Solution Section -->
-    <section id="solution" class="solution">
+    <section id="solution" class="solution section-white disable-select">
       <div class="container">
         <h2>Our Solution</h2>
         <h3>WSH - Where Stuff Happens</h3>
@@ -85,33 +86,58 @@
               content, and connect with peers within their university community.
             </p>
             <div class="feature-boxes">
-              <div class="feature-box">Real-time student connections</div>
-              <div class="feature-box">University-specific networks</div>
-              <div class="feature-box">Safe and moderated environment</div>
+              <div class="feature-box action-item solution-item" data-image="../assets/img/screenshots/school-select.PNG">University-specific networks</div>
+              <div class="feature-box action-item solution-item" data-image="../assets/img/screenshots/feed.jpg">Real-time student connections</div>
+              <div class="feature-box action-item solution-item" data-image="../assets/img/screenshots/report.PNG">Safe and moderated environment</div>
             </div>
           </div>
           <div class="screenshots">
-            <img
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/wzfwSKxqzdADZfyq.png"
-              alt="WSH Main Feed"
-            />
-            <img
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/YhDOooprYbcGhkst.png"
-              alt="WSH Categories"
-            />
+            <div class="screenshot-container">
+              <img
+                src="../assets/img/screenshots/feed.jpg"
+                alt="WSH Main Feed"
+  
+              />
+            </div>
+            <div class="screenshot-container">
+              <img
+                src="../assets/img/screenshots/feed2.PNG"
+                alt="WSH Categories"
+              />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
+    <script>
+      function bindImageOverride(selector) {
+        document.querySelectorAll(selector + '[data-image]').forEach((card) => {
+          card.addEventListener('mouseenter', () => {
+            if (window.setPhoneImageOverride) window.setPhoneImageOverride(card.dataset.image);
+          });
+          card.addEventListener('mouseleave', () => {
+            if (window.setPhoneImageOverride) window.setPhoneImageOverride(null);
+          });
+          let _touchMoved = false;
+          card.addEventListener('touchstart', () => { _touchMoved = false; }, { passive: true });
+          card.addEventListener('touchmove',  () => { _touchMoved = true;  }, { passive: true });
+          card.addEventListener('touchend', () => {
+            if (!_touchMoved && window.setPhoneImageOverride) window.setPhoneImageOverride(card.dataset.image);
+          }, { passive: true });
+        });
+      }
+      bindImageOverride('.solution-item');
+    </script>
+
 
     <!-- Identity Section -->
-    <section id="identity" class="section section-black">
+    <section id="identity" class="section section-black disable-select">
       <div class="container">
         <div class="identity-layout">
           <div class="identity-image-wrap">
             <img
-              src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663113433742/UKdLkEgjWbnTQcCK.png"
+              src="../assets/img/screenshots/id-select.PNG"
               alt="WSH Identity Options"
               class="identity-phone"
             />
@@ -119,15 +145,15 @@
           <div>
             <h2>You Choose How You Show Up</h2>
             <div class="identity-options">
-              <div class="identity-item border-red">
+              <div class="identity-item action-item border-red" data-image="../assets/img/screenshots/id-handle.PNG">
                 <h3>Handle</h3>
                 <p>Your unique username. Build your reputation over time.</p>
               </div>
-              <div class="identity-item border-purple">
+              <div class="identity-item action-item border-purple" data-image="../assets/img/screenshots/id-alias.PNG">
                 <h3>Alias</h3>
                 <p>A reusable temporary name for contextual posting.</p>
               </div>
-              <div class="identity-item border-gray">
+              <div class="identity-item action-item border-gray" data-image="../assets/img/screenshots/id-anon.PNG">
                 <h3>Anonymous</h3>
                 <p>
                   Post without your name. Pure freedom of expression, taking
@@ -140,8 +166,10 @@
       </div>
     </section>
 
+    <script>bindImageOverride('.identity-item');</script>
+
     <!-- Categories Section -->
-    <section id="categories" class="categories">
+    <section id="categories" class="categories section section-white">
       <div class="container">
         <h2>Post Categories</h2>
         <h3>Organized Content</h3>
@@ -160,9 +188,9 @@
     </section>
 
     <!-- Moderation Section -->
-    <section id="moderation" class="section section-black">
+    <section id="moderation" class="moderation section section-black">
       <div class="container">
-        <div class="text-center mb-lg">
+        <div class="text-center mb-md">
           <h2 data-i18n="moderationTitle">Moderation System</h2>
           <h3 class="section-sub" data-i18n="moderationSubtitle">
             Safety First
@@ -174,16 +202,16 @@
           </p>
         </div>
         <div class="mod-grid">
-          <div class="mod-card" data-i18n="moderationFeature1">
+          <div class="action-item mod-card" data-i18n="moderationFeature1" data-image="../assets/img/screenshots/mod-view.PNG">
             OpenAI content filtering + WebPurify AI image moderation
           </div>
-          <div class="mod-card" data-i18n="moderationFeature2">
+          <div class="action-item mod-card" data-i18n="moderationFeature2" data-image="../assets/img/screenshots/mod-vote.PNG">
             Student moderator community with local context
           </div>
-          <div class="mod-card" data-i18n="moderationFeature3">
+          <div class="action-item mod-card" data-i18n="moderationFeature3" data-image="../assets/img/screenshots/mod-history.PNG">
             Real-time content review
           </div>
-          <div class="mod-card" data-i18n="moderationFeature4">
+          <div class="action-item mod-card" data-i18n="moderationFeature4" data-image="../assets/img/screenshots/report.PNG">
             One-email-per-student security system
           </div>
         </div>
@@ -193,9 +221,10 @@
         </p>
       </div>
     </section>
+    <script>bindImageOverride('.mod-card');</script>
 
     <!-- Value Section -->
-    <section id="value" class="section section-white">
+    <section id="value" class="value section section-white">
       <div class="container">
         <div class="text-center mb-lg">
           <h2 data-i18n="valueTitle">The Value</h2>
@@ -209,27 +238,28 @@
           </p>
         </div>
         <div class="value-grid">
-          <div class="feature-card" data-i18n="valueFeature1">
+          <div class="feature-card action-item" data-i18n="valueFeature1" data-image="../assets/img/screenshots/cat-advice.PNG">
             Connect with peers from your university
           </div>
-          <div class="feature-card" data-i18n="valueFeature2">
+          <div class="feature-card action-item" data-i18n="valueFeature2" data-image="../assets/img/screenshots/cat-announce.PNG">
             Stay updated with school news and events
           </div>
-          <div class="feature-card" data-i18n="valueFeature3">
+          <div class="feature-card action-item" data-i18n="valueFeature3" data-image="../assets/img/screenshots/cat-conf.PNG">
             Reach students across all years and campuses
           </div>
-          <div class="feature-card" data-i18n="valueFeature4">
+          <div class="feature-card action-item" data-i18n="valueFeature4" data-image="../assets/img/screenshots/cat-event.PNG">
             Foster authentic community engagement
           </div>
-          <div class="feature-card" data-i18n="valueFeature5">
+          <div class="feature-card action-item" data-i18n="valueFeature5" data-image="../assets/img/screenshots/cat-quest.PNG">
             Exchange ideas and academic help
           </div>
-          <div class="feature-card" data-i18n="valueFeature6">
+          <div class="feature-card action-item" data-i18n="valueFeature6" data-image="../assets/img/screenshots/cat-life.PNG">
             Share social experiences without pressure
           </div>
         </div>
       </div>
     </section>
+    <script>bindImageOverride('#value .feature-card');</script>
 
     <!-- Independence Section -->
     <section id="independence" class="section section-black">
@@ -340,9 +370,9 @@
       </div>
     </footer>
 
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="stages.js"></script>
-  <script src="phone.js"></script> -->
+  <script src="phone.js"></script>
     <script>
 
       // Smooth scroll for anchor links

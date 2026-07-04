@@ -5,8 +5,9 @@
 //
 // Each stage:
 //   section:         the id="" of the real page section this stage applies to
-//   position:        'left' | 'center' | 'right' - where the phone sits
-//                    horizontally while this section is active
+//   position:        number 1–100 (percentage of viewport width, 50 = center)
+//                    or shorthand string: 'left' (30) | 'center' (50) | 'right' (70)
+//   positionY:       number 1–100 (percentage of viewport height, 50 = center). Default: 50.
 //   images:          array of screenshot URLs available for this stage
 //   activeImage:     index into `images` for the one currently shown
 //   scale:           size multiplier for the phone (default: 1). Interpolated between stages.
@@ -29,7 +30,7 @@
 const STAGES = [
   {
     section: 'problem',
-    position: 'right',
+    position: 70,
     images: ['../assets/img/screenshots/welcome.jpeg'],
     activeImage: 0,
     imageTransition: 'fade',
@@ -37,20 +38,20 @@ const STAGES = [
   },
   {
     section: 'solution',
-    position: 'right',
+    position: 80,
     images: [
-      '../assets/img/screenshots/feed.jpg'
+      '../assets/img/screenshots/welcome2.PNG'
     ],
     activeImage: 0,
     imageTransition: 'slideLeft',
-    tilt: -10,
+    tilt: -20,
     scale: 1.2
 },
 {
     section: 'identity',
-    position: 'left',
+    position: 30,
     images: [
-        '../assets/img/screenshots/horse.png'
+        '../assets/img/screenshots/id-select.PNG',
     ],
     activeImage: 0,
     imageTransition: 'popUp',
@@ -59,29 +60,34 @@ const STAGES = [
 
   {
     section: 'categories',
-    position: 'left',
-    images: ['../assets/img/screenshots/feed.jpg'],
+    position: 50,
+    positionY:-10,
+    tilt: 0,
+    scale: 1.2,
+    images: [
+        '../assets/img/screenshots/id-anon.png'
+    ],
     activeImage: 0,
-    imageTransition: 'popDown',
-    tilt: 5
+    imageTransition: 'fade',
   },
   {
     section: 'moderation',
-    position: 'left',
+    position: 30,
     images: ['../assets/img/screenshots/welcome.jpeg'],
     activeImage: 0,
-    imageTransition: 'fade',
+    imageTransition: 'popDown',
   },
   {
     section: 'value',
-    position: 'left',
-    images: ['../assets/img/screenshots/horse.png'],
+    position: 70,
+    images: ['../assets/img/screenshots/cat-advice.PNG'],
     activeImage: 0,
     imageTransition: 'fade',
+    tilt: 0,
   },
   {
     section: 'independence',
-    position: 'center',
+    position: -50,
     images: ['../assets/img/screenshots/welcome.jpeg'],
     activeImage: 0,
     imageTransition: 'fade',
