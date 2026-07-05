@@ -45,7 +45,7 @@ const STAGES = [
     activeImage: 0,
     imageTransition: 'slideLeft',
     tilt: -20,
-    scale: 1.2
+    scale: 1.1
 },
 {
     section: 'identity',
@@ -87,7 +87,7 @@ const STAGES = [
   },
   {
     section: 'independence',
-    position: -50,
+    position: 150,
     images: ['../assets/img/screenshots/welcome.jpeg'],
     activeImage: 0,
     imageTransition: 'fade',
