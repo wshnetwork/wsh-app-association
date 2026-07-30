@@ -6,25 +6,12 @@
     <meta name="author" content="Michael Benjamin Mocioiu">
     <title>WSH Network</title>
     <link rel="icon" type="image/png" href="/assets/img/wsh-white.png">
-    <script>
-        (function() {
-            const params = new URLSearchParams(window.location.search);
-            const mode = params.get('mode');
-            if (mode === 'resetPassword') {
-                // preserve query string when redirecting
-                window.location.replace('reset_password/index.html' + window.location.search);
-            } else if (mode === 'verifyEmail') {
-                // preserve query string when redirecting
-                window.location.replace('verify_email/index.html' + window.location.search);
-            } else {
-                window.location.replace('about/index.html');
-            }
-        })();
-    </script>
+  <script type="module" crossorigin src="/app-assets/main-Bw95yxnw.js"></script>
+  <link rel="modulepreload" crossorigin href="/app-assets/client-C9yhCDaK.js">
 </head>
 
 <body>
-    <h1>WSH Network</h1>
+    <div id="root"></div>
 </body>
 
 </html>

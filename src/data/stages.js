@@ -1,7 +1,8 @@
 // ---------------------------------------------------------------
 // stages.js
-// Pure config. Add, remove, or reorder entries here — phone.js reads
-// this array and does the rest. Nothing else needs to change.
+// Pure config, ported verbatim from public/about/stages.js. Add,
+// remove, or reorder entries here — PhoneStage.jsx reads this array
+// and does the rest.
 //
 // Each stage:
 //   section:         the id="" of the real page section this stage applies to
@@ -11,7 +12,7 @@
 //   images:          array of screenshot URLs available for this stage
 //   activeImage:     index into `images` for the one currently shown
 //   scale:           size multiplier for the phone (default: 1). Interpolated between stages.
-//   tilt:            Y-rotation in degrees (default: BASE_TILT in phone.js).
+//   tilt:            Y-rotation in degrees (default: BASE_TILT in PhoneStage.jsx).
 //                    0 = straight forward, -90 = sideways facing left, 90 = sideways facing right.
 //                    Interpolated between stages.
 //   imageTransition: how this stage's image transitions in from the previous one:
@@ -22,74 +23,67 @@
 //                      'popDown'   - previous image slides down revealing the next (next stays still)
 //
 // Stages must be listed in the same top-to-bottom order as the
-// sections appear on the page (phone.js also sorts them by actual
-// position on load, so a slightly wrong order here won't break it,
-// but keeping it matched is easiest to read).
+// sections appear on the page (PhoneStage.jsx also sorts them by
+// actual position on load, so a slightly wrong order here won't
+// break it, but keeping it matched is easiest to read).
 // ---------------------------------------------------------------
 
-const STAGES = [
+export const STAGES = [
   {
-    section: 'problem',
+    section: "problem",
     position: 70,
-    images: ['../assets/img/screenshots/welcome.jpeg'],
+    images: ["/assets/img/screenshots/welcome.jpeg"],
     activeImage: 0,
-    imageTransition: 'fade',
-    tilt: 0
+    imageTransition: "fade",
+    tilt: 0,
   },
   {
-    section: 'solution',
+    section: "solution",
     position: 80,
-    images: [
-      '../assets/img/screenshots/welcome2.PNG'
-    ],
+    images: ["/assets/img/screenshots/welcome2.PNG"],
     activeImage: 0,
-    imageTransition: 'slideLeft',
+    imageTransition: "slideLeft",
     tilt: -20,
-    scale: 1.1
-},
-{
-    section: 'identity',
+    scale: 1.1,
+  },
+  {
+    section: "identity",
     position: 30,
-    images: [
-        '../assets/img/screenshots/id-select.PNG',
-    ],
+    images: ["/assets/img/screenshots/id-select.PNG"],
     activeImage: 0,
-    imageTransition: 'popUp',
+    imageTransition: "popUp",
     tilt: 5,
   },
-
   {
-    section: 'categories',
+    section: "categories",
     position: 50,
-    positionY:-10,
+    positionY: -10,
     tilt: 0,
     scale: 1.2,
-    images: [
-        '../assets/img/screenshots/id-anon.png'
-    ],
+    images: ["/assets/img/screenshots/id-anon.png"],
     activeImage: 0,
-    imageTransition: 'fade',
+    imageTransition: "fade",
   },
   {
-    section: 'moderation',
+    section: "moderation",
     position: 30,
-    images: ['../assets/img/screenshots/welcome.jpeg'],
+    images: ["/assets/img/screenshots/welcome.jpeg"],
     activeImage: 0,
-    imageTransition: 'popDown',
+    imageTransition: "popDown",
   },
   {
-    section: 'value',
+    section: "value",
     position: 70,
-    images: ['../assets/img/screenshots/cat-advice.PNG'],
+    images: ["/assets/img/screenshots/cat-advice.PNG"],
     activeImage: 0,
-    imageTransition: 'fade',
+    imageTransition: "fade",
     tilt: 0,
   },
   {
-    section: 'independence',
+    section: "independence",
     position: 150,
-    images: ['../assets/img/screenshots/welcome.jpeg'],
+    images: ["/assets/img/screenshots/welcome.jpeg"],
     activeImage: 0,
-    imageTransition: 'fade',
+    imageTransition: "fade",
   },
 ];

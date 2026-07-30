@@ -1,186 +1,21 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="author" content="Michael Benjamin Mocioiu" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>WSH Network - Documentation</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../assets/main.css" />
-    <link rel="icon" type="image/png" href="../assets/img/wsh-white.png" />
-    <style>
-      .doc-intro {
-        text-align: center;
-        margin-bottom: 3rem;
-      }
-
-      .doc-intro h1 {
-        font-size: 2rem;
-        font-weight: 900;
-        margin-bottom: 0.5rem;
-      }
-
-      .doc-intro p {
-        color: rgba(255, 255, 255, 0.5);
-        font-size: 1rem;
-        margin: 0;
-      }
-
-      .doc-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.25rem;
-      }
-
-      .doc-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 12px;
-        padding: 2rem;
-        text-decoration: none;
-        transition: background 0.2s, transform 0.2s;
-        display: block;
-      }
-
-      .doc-card:hover {
-        background: rgba(255, 255, 255, 0.1);
-        transform: translateY(-3px);
-      }
-
-      .doc-card h2 {
-        color: var(--shell);
-        margin: 0 0 0.75rem 0;
-        font-size: 1.25rem;
-      }
-
-      .doc-card p {
-        color: rgba(255, 255, 255, 0.55);
-        margin: 0;
-        line-height: 1.6;
-        font-size: 0.9rem;
-      }
-    </style>
+    <link rel="icon" type="image/png" href="/assets/img/wsh-white.png" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <script type="module" crossorigin src="/app-assets/docsIndex-CYVeie7j.js"></script>
+    <link rel="modulepreload" crossorigin href="/app-assets/client-C9yhCDaK.js">
+    <link rel="modulepreload" crossorigin href="/app-assets/Header-NXqATtY0.js">
+    <link rel="modulepreload" crossorigin href="/app-assets/Footer-DP1S1Fzy.js">
+    <link rel="stylesheet" crossorigin href="/app-assets/main-CW8SJu-4.css">
+    <link rel="stylesheet" crossorigin href="/app-assets/docs-BXu3STt8.css">
   </head>
-
-  <body class="has-header">
-    <script src="../assets/header.js"></script>
-    <script>
-      initHeader([
-        { label: "About", href: "/about/" },
-        { label: "Download", href: "/download/" },
-      ], { startDark: true });
-    </script>
-    <section id="docs" class="section section-black">
-      <div class="container">
-        <div class="logo">
-            <img
-              src="../assets/img/wsh-white.png"
-              alt="WSH Logo"
-              style="width: 120px; margin-bottom: 20px"
-            />
-          </div>
-        <div class="doc-intro">
-          <h1>Documentation</h1>
-          <p>Important information about using WSH</p>
-        </div>
-        <div class="doc-grid">
-          <a href="/docs/comm_gl.html" class="doc-card">
-            <h2>Community Guidelines</h2>
-            <p>Learn about our community standards, what's allowed, and how we keep WSH safe for everyone.</p>
-          </a>
-          <a href="/docs/privpol.html" class="doc-card">
-            <h2>Privacy Policy</h2>
-            <p>Understand how we collect, use, and protect your personal data in compliance with GDPR.</p>
-          </a>
-          <a href="/docs/tos.html" class="doc-card">
-            <h2>Terms of Service</h2>
-            <p>Read the legal terms and conditions for using the WSH Network platform.</p>
-          </a>
-        </div>
-      </div>
-    </section>
-    <footer class="footer">
-      <div class="container footer-inner">
-        <img
-          src="../assets/img/wsh-white-2.svg"
-          alt="WSH Logo"
-          class="footer-logo"
-        />
-        <p class="footer-tagline" data-i18n="footerTagline">
-          WSH - Where Stuff Happens
-        </p>
-
-        <div class="footer-links">
-          <div>
-            <p class="footer-label" data-i18n="footerContact">Contact</p>
-            <a href="mailto:contact@wshnetwork.com">contact@wshnetwork.com</a>
-          </div>
-          <div>
-            <p class="footer-label" data-i18n="download">Download</p>
-            <a
-              href="https://wshnetwork.com/download"
-              target="_blank"
-              rel="noopener noreferrer"
-              >wshnetwork.com/download</a
-            >
-          </div>
-        </div>
-
-        <div class="footer-social">
-          <p class="footer-label" data-i18n="footerSocial">Follow Us</p>
-          <div class="social-icons">
-            <a
-              href="https://www.instagram.com/wshnetwork?igsh=MWttYnJhNmhmYmJs"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-              </svg>
-            </a>
-            <a
-              href="https://www.linkedin.com/company/wshnetwork/"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"
-                />
-                <rect x="2" y="9" width="4" height="12" />
-                <circle cx="4" cy="4" r="2" />
-              </svg>
-            </a>
-          </div>
-        </div>
-
-        <p class="footer-copy" data-i18n="footerCopyright">
-          © 2026 WSH Network. All rights reserved.
-        </p>
-      </div>
-    </footer>
+  <body>
+    <div id="root"></div>
   </body>
 </html>
