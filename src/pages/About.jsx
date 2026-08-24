@@ -4,13 +4,16 @@ import Footer from "../components/Footer";
 import { PhoneOverrideProvider } from "./about/PhoneOverrideContext";
 import PhoneStage from "./about/PhoneStage";
 import HoverImageItem from "./about/HoverImageItem";
+import IdentitySection from "./about/IdentitySection";
 import CategoriesRing from "./about/CategoriesRing";
 import useHeaderTheme from "./about/useHeaderTheme";
+import { SOLUTION_ITEMS, MODERATION_ITEMS } from "../data/features";
 
 import "../styles/main.css";
 import "../styles/about.css";
 import "../styles/categories.css";
 import "../styles/phone.css";
+import "../styles/about-mobile.css";
 
 const NAV_LINKS = [
   { label: "The Problem", href: "#problem" },
@@ -97,33 +100,24 @@ function AboutContent() {
                   university community.
                 </p>
                 <div className="feature-boxes">
-                  <HoverImageItem
-                    className="feature-box action-item solution-item"
-                    image="/assets/img/screenshots/school-select.PNG"
-                  >
-                    University-specific networks
-                  </HoverImageItem>
-                  <HoverImageItem
-                    className="feature-box action-item solution-item"
-                    image="/assets/img/screenshots/feed.jpg"
-                  >
-                    Real-time student connections
-                  </HoverImageItem>
-                  <HoverImageItem
-                    className="feature-box action-item solution-item"
-                    image="/assets/img/screenshots/report.PNG"
-                  >
-                    Safe and moderated environment
-                  </HoverImageItem>
+                  {SOLUTION_ITEMS.map((item) => (
+                    <HoverImageItem
+                      key={item.image}
+                      className="feature-box action-item solution-item"
+                      image={item.image}
+                    >
+                      {item.text}
+                    </HoverImageItem>
+                  ))}
                 </div>
               </div>
               <div className="screenshots">
-                <div className="screenshot-container">
-                  <img src="/assets/img/screenshots/feed.jpg" alt="WSH Main Feed" />
-                </div>
-                <div className="screenshot-container">
-                  <img src="/assets/img/screenshots/feed2.PNG" alt="WSH Categories" />
-                </div>
+                {SOLUTION_ITEMS.map((item) => (
+                  <div className="screenshot-slide" key={item.image}>
+                    <img src={item.image} alt={item.text} />
+                    <span className="screenshot-slide-caption">{item.text}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -132,44 +126,7 @@ function AboutContent() {
         {/* Identity Section */}
         <section id="identity" className="section section-black disable-select">
           <div className="container">
-            <div className="identity-layout">
-              <div className="identity-image-wrap">
-                <img
-                  src="/assets/img/screenshots/id-select.PNG"
-                  alt="WSH Identity Options"
-                  className="identity-phone"
-                />
-              </div>
-              <div>
-                <h2>You Choose How You Show Up</h2>
-                <div className="identity-options">
-                  <HoverImageItem
-                    className="identity-item action-item border-red"
-                    image="/assets/img/screenshots/id-handle.PNG"
-                  >
-                    <h3>Handle</h3>
-                    <p>Your unique username. Build your reputation over time.</p>
-                  </HoverImageItem>
-                  <HoverImageItem
-                    className="identity-item action-item border-purple"
-                    image="/assets/img/screenshots/id-alias.PNG"
-                  >
-                    <h3>Alias</h3>
-                    <p>A reusable temporary name for contextual posting.</p>
-                  </HoverImageItem>
-                  <HoverImageItem
-                    className="identity-item action-item border-gray"
-                    image="/assets/img/screenshots/id-anon.PNG"
-                  >
-                    <h3>Anonymous</h3>
-                    <p>
-                      Post without your name. Pure freedom of expression, taking
-                      away social pressure.
-                    </p>
-                  </HoverImageItem>
-                </div>
-              </div>
-            </div>
+            <IdentitySection />
           </div>
         </section>
 
@@ -199,18 +156,23 @@ function AboutContent() {
               </p>
             </div>
             <div className="mod-grid">
-              <HoverImageItem className="action-item mod-card" image="/assets/img/screenshots/mod-view.PNG">
-                OpenAI content filtering + WebPurify AI image moderation
-              </HoverImageItem>
-              <HoverImageItem className="action-item mod-card" image="/assets/img/screenshots/mod-vote.PNG">
-                Student moderator community with local context
-              </HoverImageItem>
-              <HoverImageItem className="action-item mod-card" image="/assets/img/screenshots/mod-history.PNG">
-                Real-time content review
-              </HoverImageItem>
-              <HoverImageItem className="action-item mod-card" image="/assets/img/screenshots/report.PNG">
-                One-email-per-student security system
-              </HoverImageItem>
+              {MODERATION_ITEMS.map((item) => (
+                <HoverImageItem
+                  key={item.image}
+                  className="action-item mod-card"
+                  image={item.image}
+                >
+                  {item.text}
+                </HoverImageItem>
+              ))}
+            </div>
+            <div className="screenshots">
+              {MODERATION_ITEMS.map((item) => (
+                <div className="screenshot-slide" key={item.image}>
+                  <img src={item.image} alt={item.text} />
+                  <span className="screenshot-slide-caption">{item.text}</span>
+                </div>
+              ))}
             </div>
             <p className="mod-note">
               Each student holds only one school email address. If a user is

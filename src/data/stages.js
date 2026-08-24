@@ -60,7 +60,7 @@ export const STAGES = [
     positionY: -10,
     tilt: 0,
     scale: 1.2,
-    images: ["/assets/img/screenshots/id-anon.png"],
+    images: ["/assets/img/screenshots/id-anon.PNG"],
     activeImage: 0,
     imageTransition: "fade",
   },

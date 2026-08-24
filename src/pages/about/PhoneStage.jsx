@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { STAGES } from "../../data/stages";
+import { CATEGORIES } from "../../data/categories";
+import { SOLUTION_ITEMS, MODERATION_ITEMS } from "../../data/features";
+import { IDENTITY_ITEMS } from "./IdentitySection";
 import { usePhoneOverride } from "./PhoneOverrideContext";
 
 // #%:1 — This whole component is a React-effect wrapper around the original
@@ -71,7 +74,7 @@ export default function PhoneStage() {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(stageW, stageH);
     stage.appendChild(renderer.domElement);
 
@@ -194,10 +197,12 @@ export default function PhoneStage() {
 
     const { canvas: compositeCanvas, ctx: compositeCtx } = makeBlankScreenCanvas();
     const compositeTexture = new THREE.CanvasTexture(compositeCanvas);
+    compositeTexture.colorSpace = THREE.SRGBColorSpace;
     screenMeshA.material.map = compositeTexture;
     screenMeshA.material.opacity = 1;
 
     const FALLBACK_TEXTURE = new THREE.CanvasTexture(makeBlankScreenCanvas().canvas);
+    FALLBACK_TEXTURE.colorSpace = THREE.SRGBColorSpace;
 
     const statusBarImg = STATUS_BAR_IMAGE ? new Image() : null;
     if (statusBarImg) statusBarImg.src = STATUS_BAR_IMAGE;
@@ -247,6 +252,24 @@ export default function PhoneStage() {
 
       return texture;
     }
+
+    // Stage images get decoded lazily as the user scrolls into each
+    // section, which is fine since that's driven by continuous scroll
+    // position anyway. Hover-triggered overrides (identity, categories,
+    // solution/moderation cards) are discrete: the very first hover of a
+    // given image used to start a cold fetch+decode right as the override
+    // fired, showing a blank/black screen until it finished. Kicking off
+    // every override-able image's decode here, right after mount, means
+    // by the time a user actually hovers something the texture is already
+    // in textureCache.
+    const preloadUrls = new Set([
+      ...STAGES.flatMap((s) => s.images || []),
+      ...CATEGORIES.map((c) => c.image),
+      ...SOLUTION_ITEMS.map((s) => s.image),
+      ...MODERATION_ITEMS.map((m) => m.image),
+      ...IDENTITY_ITEMS.map((i) => i.image),
+    ]);
+    preloadUrls.forEach((url) => getTexture(url));
 
     function getStageImageUrl(stageConfig) {
       if (!stageConfig || !stageConfig.images || stageConfig.images.length === 0) {
@@ -443,8 +466,21 @@ export default function PhoneStage() {
 
     const EPSILON = 0.0001;
     let rafId;
+    let hasAppliedPose = false;
+    let lastFrameTime = null;
+    const REFERENCE_FRAME_MS = 1000 / 60;
 
-    function tick() {
+    function tick(now) {
+      // DAMPING was originally applied once per rAF callback, which ties
+      // easing speed to the actual frame rate: on Safari, scroll-driven
+      // compositor pressure makes frame times uneven, so the same
+      // per-frame factor produced visibly uneven (choppy) motion. Scaling
+      // the factor by elapsed time keeps the easing speed constant in
+      // wall-clock terms regardless of how long each frame took.
+      const dt = lastFrameTime == null ? REFERENCE_FRAME_MS : now - lastFrameTime;
+      lastFrameTime = now;
+      const damping = 1 - Math.pow(1 - DAMPING, clamp(dt, 0, 250) / REFERENCE_FRAME_MS);
+
       const target = computeTarget();
 
       const prevPercent = currentPercent;
@@ -452,12 +488,18 @@ export default function PhoneStage() {
       const prevTilt = currentTilt;
       const prevScale = currentScale;
 
-      currentPercent += (target.percent - currentPercent) * DAMPING;
-      currentPercentY += (target.percentY - currentPercentY) * DAMPING;
-      currentTilt += (target.tilt - currentTilt) * DAMPING;
-      currentScale += (target.scale - currentScale) * DAMPING;
+      currentPercent += (target.percent - currentPercent) * damping;
+      currentPercentY += (target.percentY - currentPercentY) * damping;
+      currentTilt += (target.tilt - currentTilt) * damping;
+      currentScale += (target.scale - currentScale) * damping;
 
+      // currentPercent/currentPercentY start out already equal to the
+      // resolved stage-0 target (see initialPoseSet below), so on the very
+      // first tick nothing "changes" and camera.setViewOffset would never
+      // get called at all, leaving the phone rendered dead-center until the
+      // target later shifts. Force the pose to apply at least once.
       const poseChanged = (
+        !hasAppliedPose ||
         Math.abs(currentPercent - prevPercent) > EPSILON ||
         Math.abs(currentPercentY - prevPercentY) > EPSILON ||
         Math.abs(currentTilt - prevTilt) > EPSILON ||
@@ -473,6 +515,7 @@ export default function PhoneStage() {
         phoneGroup.rotation.y = currentTilt * DEG_TO_RAD;
         phoneGroup.rotation.x = BASE_PITCH;
         phoneGroup.scale.setScalar(BASE_SCALE * currentScale);
+        hasAppliedPose = true;
       }
 
       getTexture(target.imageUrlA);
@@ -509,16 +552,20 @@ export default function PhoneStage() {
     }
 
     let resolveTimeout;
+    let initialPoseSet = false;
     function onLoad() {
       resolveStages();
       resolveTimeout = setTimeout(resolveStages, 400);
 
-      const s = resolvedStages.length > 0 ? resolvedStages[0].config : null;
-      if (s) {
-        currentPercent = resolvePosition(s.position);
-        currentPercentY = resolvePositionY(s.positionY);
-        currentTilt = stageTilt(s);
-        currentScale = stageScale(s);
+      if (!initialPoseSet) {
+        const s = resolvedStages.length > 0 ? resolvedStages[0].config : null;
+        if (s) {
+          initialPoseSet = true;
+          currentPercent = resolvePosition(s.position);
+          currentPercentY = resolvePositionY(s.positionY);
+          currentTilt = stageTilt(s);
+          currentScale = stageScale(s);
+        }
       }
     }
 
@@ -531,12 +578,27 @@ export default function PhoneStage() {
     window.addEventListener("resize", handleResize);
     window.addEventListener("scroll", handleScroll, { passive: true });
 
+    // Section heights depend on <img> tags inside #sections-wrapper that are
+    // still downloading when this component mounts (especially true for SPA
+    // navigation, where document.readyState is already "complete" and the
+    // window "load" event never fires again). As those images finish
+    // loading, section heights shift and stage anchors computed from them go
+    // stale, which is what made the phone enter at the wrong spot on first
+    // load. Re-resolving on every layout size change keeps anchors accurate
+    // regardless of image load timing.
+    let resizeObserver;
+    const sectionsWrapper = document.getElementById("sections-wrapper");
+    if (sectionsWrapper && typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => resolveStages());
+      resizeObserver.observe(sectionsWrapper);
+    }
+
     requestAnimationFrame(() => {
       phoneContainer.classList.add("phone-visible");
       document.body.classList.add("phone-active");
     });
 
-    tick();
+    rafId = requestAnimationFrame(tick);
 
     return () => {
       cancelAnimationFrame(rafId);
@@ -545,6 +607,7 @@ export default function PhoneStage() {
       window.removeEventListener("resize", resolveStages);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
+      resizeObserver?.disconnect();
       document.body.classList.remove("phone-active");
       stage.removeChild(renderer.domElement);
       renderer.dispose();

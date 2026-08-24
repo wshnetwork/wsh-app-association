@@ -36,7 +36,11 @@
     /* filter: drop-shadow(0px 24px 48px rgba(0, 0, 0, 0.35)); */
 }
 
-@media (max-width: 768px) {
+/* Kept in lockstep with the 1024px "desktop" threshold used by the
+   categories-ring semicircle mode (see CategoriesRing.jsx / categories.css)
+   and the header nav collapse (main.css) — otherwise the phone can be
+   visible while the ring is still in full-circle mode (or vice versa). */
+@media (max-width: 1023px) {
     #phone-container {
         display: none;
     }

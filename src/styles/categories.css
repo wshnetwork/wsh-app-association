@@ -14,7 +14,9 @@
 
     /* ---- Ring layout ---- */
     --ring-padding: clamp(8px, 1.2vw, 14px);
-    --orbit-radius: clamp(110px, 19vw, 236px);
+    /* Floor kept low (JS recomputes a tighter, item-size-aware floor once
+       mounted) so items never poke outside the ring box before that runs. */
+    --orbit-radius: clamp(70px, 19vw, 236px);
 
     /* ---- Center element ---- */
     --center-size: clamp(108px, 15vw, 160px);
@@ -242,9 +244,9 @@
     .categories-grid.semicircle {
         width: min(100%, 750px);
         --ring-size: 700px;
-        --item-size: 120px;
+        --item-size: clamp(3.75rem, 10vh, 7.5rem);
         --center-size: clamp(110px, 12vw, 150px);
-        max-height: 400px;
+        max-height: clamp(13.75rem, 33.33vh, 25rem);
         align-self: flex-end;
     }
 

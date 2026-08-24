@@ -36,10 +36,19 @@ export default function CategoriesRing() {
       const gridRect = grid.getBoundingClientRect();
       const itemRect = sampleItem.getBoundingClientRect();
       const ringPadding = Math.max(8, Math.min(16, gridRect.width * 0.02));
+      // In semicircle mode the ring's box height is capped by a vh-based
+      // clamp (see categories.css) so it fits short viewports; bound the
+      // arc's diameter by that measured height too, or a short viewport
+      // still gets an arc sized purely off width.
       const diameter = isSemicircleViewport()
-        ? gridRect.width
+        ? Math.min(gridRect.width, gridRect.height * 2)
         : Math.min(gridRect.width, gridRect.height);
-      const radius = Math.max(110, diameter / 2 - itemRect.width / 2 - ringPadding);
+      // Floor the radius by the item's own half-width (plus a hair of
+      // padding) rather than a fixed px value — a fixed floor can exceed
+      // the ring's actual box on narrow viewports and push items outside
+      // the section instead of just tightening the arc.
+      const minRadius = itemRect.width / 2 + 4;
+      const radius = Math.max(minRadius, diameter / 2 - itemRect.width / 2 - ringPadding);
       grid.style.setProperty("--orbit-radius", `${radius}px`);
     };
 

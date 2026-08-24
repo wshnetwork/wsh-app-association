@@ -1,0 +1,189 @@
+/* ---------------------------------------------------------------
+   about-mobile.css
+
+   A dedicated polish pass for narrow viewports. The base about.css
+   rules just collapse desktop grids to a single column; this file
+   makes that single column actually feel designed — tighter
+   rhythm, a card language shared across sections, and a screenshot
+   carousel that suits touch better than a vertical stack. No copy
+   or section structure changes, only presentation.
+   --------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+
+  /* ---- Shared card language -----------------------------------
+     feature-box / mod-card / feature-card all read as flat, shadowless
+     blocks today. Give them a consistent, slightly lifted treatment
+     on mobile (keeping each one's existing radius/border) so the
+     stacked layout reads as a list of designed cards instead of
+     plain text blocks. */
+  .feature-box,
+  .mod-card,
+  .feature-card {
+    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.18);
+  }
+
+  .section-black .feature-box,
+  .section-black .mod-card,
+  .section-black .feature-card {
+    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  /* ---- Hero -------------------------------------------------- */
+  .hero {
+    padding-top: 6.5rem;
+  }
+
+  .hero .subtitle {
+    margin-bottom: 2.25rem;
+  }
+
+  .btn {
+    padding: 0.9rem 2.5rem;
+    font-size: 0.95rem;
+  }
+
+  /* ---- Problem section ----------------------------------------
+     The screenshot doesn't earn its space on a narrow viewport, so
+     it's dropped entirely rather than just shrunk. */
+  .problem-grid {
+    gap: 2rem;
+  }
+
+  .problem-grid > div:last-child {
+    display: none;
+  }
+
+  /* ---- Solution section -----------------------------------------
+     The points column is dropped on mobile — each point now travels
+     with its screenshot as a caption baked onto the carousel slide,
+     so swiping the phone screenshots is how you read the feature
+     list. A horizontal, edge-to-edge scroll-snap strip reads as a
+     deliberate "swipe through the app" moment. */
+  .solution-grid {
+    gap: 1.5rem;
+  }
+
+  .feature-boxes {
+    display: none;
+  }
+
+  .screenshots {
+    --slide-w: clamp(180px, 58vw, 220px);
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 -1.25rem;
+    padding-top: 0.25rem;
+    padding-bottom: 2rem;
+    padding-inline: max(1.25rem, calc((100% - var(--slide-w)) / 2));
+  }
+
+  .screenshots::-webkit-scrollbar {
+    display: none;
+  }
+
+  .screenshot-slide {
+    flex: 0 0 auto;
+    width: var(--slide-w);
+    scroll-snap-align: center;
+    box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.35);
+  }
+
+  /* ---- Identity section -----------------------------------------
+     Reordered to header -> screenshot -> items (the grid-area order
+     is set in about.css; this file only handles the mobile-specific
+     presentation). The screenshot is cropped to a 1022px-tall window
+     out of the source image's 2556px height — the identity picker
+     sits near the top of the screen in the real app, so that's the
+     part worth showing here — via a wrapper sized off the source
+     image's own aspect ratio (1179x2556) rather than a fixed height,
+     so it stays correct if the screenshot is swapped for one with
+     different dimensions. object-position is nudged down from the
+     very top (10%) so the crop clears the status bar instead of
+     including it. */
+  .identity-layout {
+    gap: 1.5rem;
+  }
+
+  .identity-image-wrap {
+    max-width: 280px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.5);
+    aspect-ratio: 1179 / 1022.4;
+  }
+
+  .identity-phone {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    object-fit: cover;
+    object-position: 50% 10%;
+  }
+
+  .identity-options {
+    gap: 0.85rem;
+  }
+
+  .identity-item.touch-active {
+    transform: scale(1.02);
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  /* ---- Categories section --------------------------------------
+     With 10+ items on a full circle, the ring needs room to breathe
+     from the intro copy above it — it's tight by default when the
+     hero-sized heading/paragraph above it are also full-width. */
+  #categories .categories-grid {
+    margin-top: 1.5rem;
+  }
+
+  /* ---- Moderation / Value grids ---------------------------------
+     Match the shared card gap/rhythm now that everything is a
+     single column of cards. The moderation text cards are dropped
+     on mobile in favor of the screenshot carousel added below,
+     mirroring the solution section's feature-boxes/screenshots
+     split. */
+  .mod-grid {
+    display: none;
+  }
+
+  .value-grid,
+  .feature-grid {
+    gap: 1rem;
+  }
+
+  .mod-note {
+    margin-top: 0.5rem;
+  }
+
+  /* ---- Independence section -------------------------------------- */
+  .independence .lead {
+    font-size: 1.05rem;
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero .tagline {
+    font-size: 1.4rem;
+  }
+
+  .mod-card,
+  .feature-card,
+  .feature-box {
+    padding: 1.1rem;
+  }
+}

@@ -9,6 +9,7 @@
   --red: #ef4444;
   --purple: #a855f7;
   --gray: #6b7280;
+
 }
 * {
   margin: 0;
@@ -132,7 +133,8 @@ a.logo-section {
 nav {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: clamp(1rem, 1.8vw, 1.5rem);
+  flex-wrap: nowrap;
 }
 
 nav a {
@@ -140,6 +142,7 @@ nav a {
   color: #000;
   font-size: 1rem;
   font-weight: 500;
+  white-space: nowrap;
   transition: color 0.2s;
 }
 
@@ -175,7 +178,10 @@ nav a:hover {
   font-size: 0.875rem;
 }
 
-@media (max-width: 768px) {
+/* Matches the 1024px threshold used elsewhere (phone stage visibility,
+   categories-ring semicircle mode) so the header never has to squeeze
+   the full nav into a width narrower than it needs. */
+@media (max-width: 1023px) {
   nav {
     display: none;
   }
@@ -194,7 +200,7 @@ body.has-header {
   max-width: 1280px;
   margin: 0 auto;
   width: 100%;
-  padding: 0 0px;
+  padding: 0 2rem;
 }
 
 .section {
@@ -202,9 +208,8 @@ body.has-header {
 }
 
 @media (max-width: 768px) {
-  .section {
-    height: 1vh;
-    
+  .container {
+    padding: 0 1.25rem;
   }
 }
 
@@ -309,9 +314,9 @@ h1 {
 
 h2 {
   color: rgba(var(--black-rgb));
-  margin-top: 30px;
-  margin-bottom: 15px;
-  font-size: 3rem;
+  margin-top: clamp(0.5rem, 2.5vh, 1.875rem);
+  margin-bottom: clamp(0.375rem, 1.25vh, 0.9375rem);
+  font-size: clamp(1.5rem, 4vh, 3rem);
   font-weight: 900;
 }
 
@@ -321,9 +326,9 @@ h2 {
 
 h3 {
     color: rgba(var(--black-rgb), 0.9);
-    margin-top: 30px;
-    margin-bottom: 10px;
-    font-size: 1.6rem;
+    margin-top: clamp(0.5rem, 2.5vh, 1.875rem);
+    margin-bottom: clamp(0.25rem, 0.833vh, 0.625rem);
+    font-size: clamp(1rem, 2.133vh, 1.6rem);
 }
 
 .section-black h3 {
@@ -354,17 +359,19 @@ strong {
   color: var(--white);
 }
 
-/* ===== Layout Containers ===== */
+/* ===== Layout Containers =====
+   Horizontal spacing lives on .container (below) so every section gets
+   the same edge padding — sections only set their own vertical rhythm. */
 section {
   min-height: 100vh;
   scroll-snap-align: start;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 6rem 2rem;
+  padding: clamp(1.5rem, 8vh, 6rem) 0;
 }
 .section {
-  padding: 8rem 0;
+  padding: clamp(2rem, 10.667vh, 8rem) 0;
 }
 
 .section-white {
@@ -382,10 +389,10 @@ section {
 }
 
 .mb-md {
-  margin-bottom: 2rem;
+  margin-bottom: clamp(1rem, 2.667vh, 2rem);
 }
 .mb-lg {
-  margin-bottom: 4rem;
+  margin-bottom: clamp(1.5rem, 5.333vh, 4rem);
 }
 
 .mt-md {
