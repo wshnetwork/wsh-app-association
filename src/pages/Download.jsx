@@ -78,6 +78,7 @@ export default function Download() {
   return (
     <>
       <Header navLinks={NAV_LINKS} startDark />
+      <div className="download-page">
       <div className="container">
         <div className="download-header">
           <img src="/assets/img/wsh-white.png" alt="WSH Logo" />
@@ -129,6 +130,7 @@ export default function Download() {
             </div>
           </div> */}
         </div>
+      </div>
       </div>
     </>
   );
