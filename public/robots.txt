@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /reset_password/
+Disallow: /verify_email/
+
+Sitemap: https://wshnetwork.com/sitemap.xml

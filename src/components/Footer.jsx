@@ -7,14 +7,20 @@ export default function Footer() {
 
         <div className="footer-links">
           <div>
-            <p className="footer-label">Contact</p>
-            <a href="mailto:contact@wshnetwork.com">contact@wshnetwork.com</a>
+            <p className="footer-label">Explore</p>
+            <a href="/about/">About</a>
+            <a href="/download/">Download</a>
+            <a href="/docs/">Docs</a>
           </div>
           <div>
-            <p className="footer-label">Download</p>
-            <a href="https://wshnetwork.com/download" target="_blank" rel="noopener noreferrer">
-              wshnetwork.com/download
-            </a>
+            <p className="footer-label">Legal</p>
+            <a href="/docs/privpol.html">Privacy Policy</a>
+            <a href="/docs/tos.html">Terms of Service</a>
+            <a href="/docs/comm_gl.html">Community Guidelines</a>
+          </div>
+          <div>
+            <p className="footer-label">Contact</p>
+            <a href="mailto:contact@wshnetwork.com">contact@wshnetwork.com</a>
           </div>
         </div>
 
