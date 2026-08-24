@@ -29,6 +29,7 @@ export default defineConfig({
         deleteAccount: r('delete_account/index.html'),
         resetPassword: r('reset_password/index.html'),
         verifyEmail: r('verify_email/index.html'),
+        notFound: r('404.html'),
       },
     },
   },

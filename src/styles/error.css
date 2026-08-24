@@ -1,0 +1,58 @@
+.error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 96px 20px 40px;
+    text-align: center;
+}
+
+.error-page .container {
+    max-width: 480px;
+}
+
+.error-code {
+    font-size: clamp(4rem, 16vw, 7rem);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 8px;
+}
+
+.error-page h1 {
+    color: var(--white);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    margin-bottom: 12px;
+}
+
+.error-page p {
+    color: rgba(var(--white-rgb), 0.7);
+    margin-bottom: 32px;
+}
+
+.error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.error-actions .button-outline {
+    display: inline-block;
+    padding: 12px 30px;
+    background: transparent;
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 600;
+    border: 1px solid rgba(var(--white-rgb), 0.3);
+    cursor: pointer;
+    font-size: 15px;
+    transition: all 0.2s;
+}
+
+.error-actions .button-outline:hover {
+    background: rgba(var(--white-rgb), 0.1);
+    border-color: rgba(var(--white-rgb), 0.5);
+}
