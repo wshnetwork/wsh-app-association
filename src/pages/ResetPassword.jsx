@@ -69,10 +69,6 @@ export default function ResetPassword() {
                             </div>
                             <div id="err" class="error-text" style="display:none;"></div>
                             <button id="submit" class="button">Set Password</button>
-                            <div class="small">If the app doesn't open automatically, use the button below.</div>
-                            <div style="margin-top:10px;">
-                                <a id="openAppBtn" href="#" class="button" style="background:#444;color:#fff;text-decoration:none;">Open App</a>
-                            </div>
                         </div>
                     `;
 
@@ -80,14 +76,6 @@ export default function ResetPassword() {
           const confInput = document.getElementById("confirm");
           const err = document.getElementById("err");
           const submit = document.getElementById("submit");
-          const openAppBtn = document.getElementById("openAppBtn");
-
-          function setOpenAppHref(success) {
-            const actionParam = success ? "password_reset_success" : "password_reset_failed";
-            openAppBtn.href =
-              "weshapp://main?action=" + actionParam + "&schoolId=" + encodeURIComponent(schoolId || "");
-          }
-          setOpenAppHref(false);
 
           submit.addEventListener("click", () => {
             err.style.display = "none";
@@ -129,7 +117,6 @@ export default function ResetPassword() {
                 err.textContent =
                   "Failed to reset password: " + (error.message || error.code || "unknown error");
                 err.style.display = "block";
-                setOpenAppHref(false);
               });
           });
         })

@@ -412,6 +412,12 @@ section {
 /* Page-specific container widths */
 .container.reset-password {
   max-width: 420px;
+  text-align: center;
+}
+
+.container.verify-email {
+  max-width: 420px;
+  text-align: center;
 }
 
 .container.delete-account {
