@@ -440,6 +440,11 @@ section {
   color: var(--shell);
 }
 
+.reset-password p,
+.verify-email p {
+  color: var(--shell);
+}
+
 body.modtest-mode {
   padding: 20px;
   background: #0a0a0a;
