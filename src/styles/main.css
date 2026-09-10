@@ -424,6 +424,20 @@ section {
   max-width: 600px;
   width: 100%;
   text-align: left;
+  padding-top: 2.5rem;
+  padding-bottom: 3.75rem;
+}
+
+/* These three pages render standalone on the black body background rather
+   than inside a .section-black/.section-white block, so they need their
+   own light heading color instead of the global h1/h2/h3 rules (which
+   default to near-black text, meant for headings on a white section). */
+.reset-password h1,
+.verify-email h1,
+.delete-account h1,
+.delete-account h2,
+.delete-account h3 {
+  color: var(--shell);
 }
 
 body.modtest-mode {
@@ -612,6 +626,21 @@ input[type="file"]::file-selector-button {
 .delete-account h1 {
   text-align: center;
   margin-bottom: 10px;
+}
+
+/* Override the global h2/h3 rules: those use viewport-height-based clamp()
+   sizing meant for full-screen landing sections, which blows up the
+   spacing badly across this page's many stacked headings. */
+.delete-account h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.delete-account h3 {
+  font-size: 1.125rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .delete-account p {

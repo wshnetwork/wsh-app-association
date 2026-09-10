@@ -10,6 +10,14 @@ const firebaseConfig = {
   projectId: "wesh-3ae30",
 };
 
+// Dev-only UI simulation, active only under `vite dev` (import.meta.env.DEV
+// is statically false in production builds, so this branch is dead-code
+// eliminated from the deployed bundle - it never ships). Click "Verify
+// Email" as usual; the outcome is simulated instead of calling Firebase:
+//   ?dev=success   -> (default) simulate a successful verification
+//   ?dev=error     -> simulate a failed verification
+const DEV_MODE = import.meta.env.DEV;
+
 export default function VerifyEmail() {
   const titleRef = useRef(null);
   const spinnerRef = useRef(null);
@@ -22,23 +30,21 @@ export default function VerifyEmail() {
     // verify_email/index.html. This is a one-shot linear flow (click ->
     // verify -> success/error), kept as direct imperative DOM
     // manipulation via refs rather than rewritten as React state.
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get("mode");
     const oobCode = urlParams.get("oobCode");
+    const devState = DEV_MODE ? urlParams.get("dev") : null;
     const spinner = spinnerRef.current;
     const title = titleRef.current;
     const message = messageRef.current;
     const action = actionRef.current;
     const verifyBtn = verifyBtnRef.current;
-    let schoolId = "";
+    let schoolId = urlParams.get("schoolId") || "";
     try {
       const continueUrl = urlParams.get("continueUrl");
       console.log("Continue URL:", continueUrl);
 
-      if (continueUrl) {
+      if (!schoolId && continueUrl) {
         // Parse the continueUrl
         const continueUrlObj = new URL(continueUrl);
 
@@ -74,6 +80,34 @@ export default function VerifyEmail() {
       action.innerHTML = "";
       verifyBtn.style.display = "none";
 
+      if (devState) {
+        // Dev-mode simulation: no Firebase config is touched and no
+        // network calls are made - purely a UI preview.
+        spinner.style.display = "block";
+        message.textContent = "Verifying your email...";
+
+        setTimeout(() => {
+          spinner.style.display = "none";
+
+          if (devState === "error") {
+            title.innerHTML = '<span class="error">✗</span>';
+            message.textContent = "Verification failed: [dev mode simulation]";
+            action.innerHTML =
+              '<a href="weshapp://main?action=verification_failed&schoolId=' +
+              schoolId +
+              '" class="button">Return to App</a>';
+          } else {
+            title.innerHTML = '<span class="success">✓</span>';
+            message.textContent = "Email verified successfully! (dev mode)";
+            action.innerHTML =
+              '<a href="weshapp://main?action=verification_success&schoolId=' +
+              schoolId +
+              '" class="button">Open App</a>';
+          }
+        }, 600);
+        return;
+      }
+
       if (mode !== "verifyEmail" || !oobCode) {
         spinner.style.display = "none";
         message.textContent = "Invalid verification link";
@@ -83,6 +117,9 @@ export default function VerifyEmail() {
 
       spinner.style.display = "block";
       message.textContent = "Verifying your email...";
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
 
       applyActionCode(auth, oobCode)
         .then(() => {
